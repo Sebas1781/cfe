@@ -53,7 +53,8 @@ const createTables = async () => {
     await run(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT UNIQUE NOT NULL,
+        numero_trabajador TEXT UNIQUE NOT NULL,
+        email TEXT,
         password TEXT NOT NULL,
         name TEXT NOT NULL,
         role TEXT NOT NULL CHECK(role IN ('admin', 'trabajador')),
@@ -107,26 +108,26 @@ const seedDefaultUsers = async () => {
   const bcrypt = require('bcrypt');
   
   try {
-    const checkAdmin = await get('SELECT * FROM users WHERE email = ?', ['admin@cfe.com']);
+    const checkAdmin = await get('SELECT * FROM users WHERE numero_trabajador = ?', ['00001']);
     
     if (!checkAdmin) {
       const hashedPassword = bcrypt.hashSync('admin123', 10);
       await run(
-        'INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)',
-        ['admin@cfe.com', hashedPassword, 'Administrador', 'admin']
+        'INSERT INTO users (numero_trabajador, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
+        ['00001', 'admin@cfe.com', hashedPassword, 'Administrador CFE', 'admin']
       );
-      console.log('✅ Usuario admin creado: admin@cfe.com / admin123');
+      console.log('✅ Usuario admin creado: 00001 / admin123');
     }
     
-    const checkWorker = await get('SELECT * FROM users WHERE email = ?', ['trabajador@cfe.com']);
+    const checkWorker = await get('SELECT * FROM users WHERE numero_trabajador = ?', ['12345']);
     
     if (!checkWorker) {
-      const hashedPassword = bcrypt.hashSync('trabajador123', 10);
+      const hashedPassword = bcrypt.hashSync('12345', 10);
       await run(
-        'INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)',
-        ['trabajador@cfe.com', hashedPassword, 'Trabajador Demo', 'trabajador']
+        'INSERT INTO users (numero_trabajador, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
+        ['12345', 'trabajador@cfe.com', hashedPassword, 'Juan Pérez López', 'trabajador']
       );
-      console.log('✅ Usuario trabajador creado: trabajador@cfe.com / trabajador123');
+      console.log('✅ Usuario trabajador creado: 12345 / 12345');
     }
   } catch (error) {
     console.error('Error creando usuarios:', error);

@@ -7,7 +7,7 @@ const { run, get, all } = require('../database/db');
 
 // Login
 router.post('/login', [
-  body('email').isEmail().normalizeEmail(),
+  body('numero_trabajador').isLength({ min: 5, max: 5 }).isNumeric(),
   body('password').notEmpty()
 ], async (req, res) => {
   try {
@@ -16,10 +16,10 @@ router.post('/login', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { email, password } = req.body;
+    const { numero_trabajador, password } = req.body;
     
-    // Buscar usuario
-    const user = await get('SELECT * FROM users WHERE email = ?', [email]);
+    // Buscar usuario por número de trabajador
+    const user = await get('SELECT * FROM users WHERE numero_trabajador = ?', [numero_trabajador]);
     
     if (!user) {
       return res.status(401).json({ error: 'Credenciales inválidas' });
@@ -36,7 +36,8 @@ router.post('/login', [
     const token = jwt.sign(
       { 
         id: user.id, 
-        email: user.email, 
+        numero_trabajador: user.numero_trabajador,
+        email: user.email,
         role: user.role,
         name: user.name 
       },
@@ -48,6 +49,7 @@ router.post('/login', [
       token,
       user: {
         id: user.id,
+        numero_trabajador: user.numero_trabajador,
         email: user.email,
         name: user.name,
         role: user.role

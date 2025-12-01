@@ -1,10 +1,10 @@
 import apiClient from '../config/api';
 
 export const authService = {
-  // Login con API backend
-  async login(email, password) {
+  // Login con número de trabajador
+  async login(numero_trabajador, password) {
     try {
-      const response = await apiClient.post('/auth/login', { email, password });
+      const response = await apiClient.post('/auth/login', { numero_trabajador, password });
       localStorage.setItem('authToken', response.token);
       return response.user;
     } catch (error) {
