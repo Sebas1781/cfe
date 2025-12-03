@@ -2,17 +2,21 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import useAuthStore from './stores/authStore';
 import PrivateRoute from './components/PrivateRoute';
 import NetworkStatus from './components/NetworkStatus';
+import GoogleMapsLoader from './components/GoogleMapsLoader';
 import Login from './pages/Login';
 import FormularioTrabajador from './pages/FormularioTrabajador';
 import AdminDashboard from './pages/AdminDashboard';
+import NuevoReporte from './pages/NuevoReporte';
+import ListaReportes from './pages/ListaReportes';
 
 function App() {
   const { isAuthenticated } = useAuthStore();
 
   return (
-    <BrowserRouter>
-      {/* Componente de sincronización automática - visible solo cuando hay datos pendientes */}
-      <NetworkStatus />
+    <GoogleMapsLoader>
+      <BrowserRouter>
+        {/* Componente de sincronización automática - visible solo cuando hay datos pendientes */}
+        <NetworkStatus />
       
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -22,6 +26,33 @@ function App() {
           element={
             <PrivateRoute allowedRoles={['trabajador']}>
               <FormularioTrabajador />
+            </PrivateRoute>
+          }
+        />
+        
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/nuevo-reporte"
+          element={
+            <PrivateRoute>
+              <NuevoReporte />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/reportes"
+          element={
+            <PrivateRoute>
+              <ListaReportes />
             </PrivateRoute>
           }
         />
@@ -37,7 +68,7 @@ function App() {
         
         <Route
           path="/"
-          element={<Navigate to={isAuthenticated ? '/formulario' : '/login'} replace />}
+          element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />}
         />
         
         <Route
@@ -53,6 +84,7 @@ function App() {
         />
       </Routes>
     </BrowserRouter>
+    </GoogleMapsLoader>
   );
 }
 

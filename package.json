@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.7",
     "better-sqlite3": "^12.5.0",
     "firebase": "^12.6.0",
     "localforage": "^1.10.0",

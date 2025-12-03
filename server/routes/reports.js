@@ -4,6 +4,7 @@ const { body, validationResult } = require('express-validator');
 const { authMiddleware, requireRole } = require('../middleware/auth');
 const { run, get, all } = require('../database/db');
 const { generatePDF } = require('../services/pdfGenerator');
+const { generateXLSX } = require('../services/excelGenerator');
 const path = require('path');
 const fs = require('fs');
 
@@ -77,11 +78,9 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // Generar nuevo reporte (crear formulario + PDF)
 router.post('/generate', [
   authMiddleware,
-  body('folio').notEmpty(),
-  body('fecha').isDate(),
-  body('ubicacion').notEmpty(),
-  body('tipoServicio').notEmpty(),
-  body('descripcion').notEmpty().isLength({ min: 20 })
+  body('tipoMantenimiento').optional(),
+  body('modeloUTR').optional(),
+  body('fechaMantenimiento').optional().isDate(),
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -89,7 +88,10 @@ router.post('/generate', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { folio, fecha, ubicacion, tipoServicio, descripcion, materiales, observaciones } = req.body;
+    const formData = req.body;
+    
+    // Generar folio automático si no viene
+    const folio = formData.folio || `CFE-${Date.now()}`;
     
     // Verificar si el folio ya existe
     const existingReport = await get('SELECT * FROM reports WHERE folio = ?', [folio]);
@@ -97,68 +99,118 @@ router.post('/generate', [
       return res.status(400).json({ error: 'El folio ya existe' });
     }
     
-    // Insertar reporte en la base de datos
+    // Insertar reporte en la base de datos con TODOS los campos
     const result = await run(
       `INSERT INTO reports (
-        folio, user_id, user_name, fecha, ubicacion, 
-        tipo_servicio, descripcion, materiales, observaciones
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        folio, user_id, user_name,
+        tipo_mantenimiento, modelo_utr, fecha_mantenimiento, hora_inicio, hora_termino,
+        responsable, licencia, registro, restaurador, circuito, area,
+        latitud, longitud, direccion,
+        radio_gabinete, potencia_salida, rssi, umbral_recepcion,
+        frecuencia_mhz, rx, tx, cable_pigtail, supresor, cable_lt,
+        altura_antena, repetidor_enlace, canal_ucm,
+        actividades,
+        potencia_radio, potencia_incidente, potencia_reflejada, vswr,
+        voltaje_acometida, resistencia_tierra, voltaje_fuente,
+        resistencia_bateria, porcentaje_bateria, angulo_azimut,
+        materiales, calibre_bajante, observaciones,
+        fotografias, codigo_radio
+      ) VALUES (
+        ?, ?, ?,
+        ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?,
+        ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?,
+        ?, ?, ?,
+        ?,
+        ?, ?, ?, ?,
+        ?, ?, ?,
+        ?, ?, ?,
+        ?, ?, ?,
+        ?, ?
+      )`,
       [
         folio,
         req.user.id,
         req.user.name,
-        fecha,
-        ubicacion,
-        tipoServicio,
-        descripcion,
-        materiales || null,
-        observaciones || null
+        // Información Básica
+        formData.tipoMantenimiento || null,
+        formData.modeloUTR || null,
+        formData.fechaMantenimiento || null,
+        formData.horaInicio || null,
+        formData.horaTermino || null,
+        formData.responsable || null,
+        formData.licencia || null,
+        formData.registro || null,
+        formData.restaurador || null,
+        formData.circuito || null,
+        formData.area || null,
+        formData.latitud || null,
+        formData.longitud || null,
+        formData.direccion || null,
+        // Radio/Gabinete
+        formData.radioGabinete || null,
+        formData.potenciaSalida || null,
+        formData.rssi || null,
+        formData.umbralRecepcion || null,
+        formData.frecuenciaMhz || null,
+        formData.rx || null,
+        formData.tx || null,
+        formData.cablePigtail || null,
+        formData.supresor || null,
+        formData.cableLT || null,
+        formData.alturaAntena || null,
+        formData.repetidorEnlace || null,
+        formData.canalUCM || null,
+        // Actividades (JSON)
+        formData.actividades ? JSON.stringify(formData.actividades) : null,
+        // Mediciones Técnicas
+        formData.potenciaRadio || null,
+        formData.potenciaIncidente || null,
+        formData.potenciaReflejada || null,
+        formData.vswr || null,
+        formData.voltajeAcometida || null,
+        formData.resistenciaTierra || null,
+        formData.voltajeFuente || null,
+        formData.resistenciaBateria || null,
+        formData.porcentajeBateria || null,
+        formData.anguloAzimut || null,
+        // Materiales y Observaciones
+        formData.materiales ? JSON.stringify(formData.materiales) : null,
+        formData.calibreBajante || null,
+        formData.observaciones || null,
+        // Fotografías (JSON)
+        formData.fotografias ? JSON.stringify(formData.fotografias) : null,
+        formData.codigoRadio || null
       ]
     );
     
     const reportId = result.lastID;
     
-    // Generar PDF
+    // Generar PDF con todos los campos
     try {
       const pdfPath = await generatePDF({
-        id: reportId,
+        ...formData,
         folio,
-        fecha,
-        ubicacion,
-        tipoServicio,
-        descripcion,
-        materiales,
-        observaciones,
-        trabajador: req.user.name,
-        generadoEn: new Date().toLocaleString('es-MX')
+        user_name: req.user.name,
+        fecha: formData.fechaMantenimiento || new Date().toISOString()
       });
-      
-      // Actualizar ruta del PDF en la base de datos
       await run('UPDATE reports SET pdf_path = ? WHERE id = ?', [pdfPath, reportId]);
-      
-      res.status(201).json({
-        message: 'Reporte generado exitosamente',
-        reporte: {
-          id: reportId,
-          folio,
-          pdf_path: pdfPath
-        }
-      });
     } catch (pdfError) {
       console.error('Error generando PDF:', pdfError);
-      // El reporte se creó pero no el PDF
-      res.status(201).json({
-        message: 'Reporte creado pero error al generar PDF',
-        reporte: {
-          id: reportId,
-          folio,
-          pdf_error: pdfError.message
-        }
-      });
     }
+    
+    res.status(201).json({
+      message: 'Reporte generado exitosamente',
+      reporte: {
+        id: reportId,
+        folio
+      }
+    });
   } catch (error) {
     console.error('Error al generar reporte:', error);
-    res.status(500).json({ error: 'Error al generar reporte' });
+    res.status(500).json({ error: 'Error al generar reporte', details: error.message });
   }
 });
 
@@ -240,6 +292,36 @@ router.delete('/:id', [authMiddleware, requireRole('admin')], async (req, res) =
   } catch (error) {
     console.error('Error al eliminar reporte:', error);
     res.status(500).json({ error: 'Error al eliminar reporte' });
+  }
+});
+
+// Exportar reporte a XLSX
+router.get('/:id/export/xlsx', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const reporte = await get('SELECT * FROM reports WHERE id = ?', [id]);
+
+    if (!reporte) {
+      return res.status(404).json({ error: 'Reporte no encontrado' });
+    }
+
+    // Verificar permisos
+    if (req.user.role === 'trabajador' && reporte.user_id !== req.user.id) {
+      return res.status(403).json({ error: 'No tienes permisos' });
+    }
+
+    // Generar XLSX en disco y devolver como descarga
+    const xlsxRelPath = await generateXLSX(reporte);
+    const xlsxAbsPath = path.join(__dirname, '..', xlsxRelPath);
+
+    if (!fs.existsSync(xlsxAbsPath)) {
+      return res.status(404).json({ error: 'Archivo XLSX no encontrado' });
+    }
+
+    res.download(xlsxAbsPath, `reporte_${reporte.folio}.xlsx`);
+  } catch (error) {
+    console.error('Error al exportar XLSX:', error);
+    res.status(500).json({ error: 'Error al exportar XLSX' });
   }
 });
 

@@ -70,12 +70,63 @@ const createTables = async () => {
         folio TEXT UNIQUE NOT NULL,
         user_id INTEGER NOT NULL,
         user_name TEXT NOT NULL,
-        fecha DATE NOT NULL,
-        ubicacion TEXT NOT NULL,
-        tipo_servicio TEXT NOT NULL,
-        descripcion TEXT NOT NULL,
+        
+        -- Información Básica
+        tipo_mantenimiento TEXT,
+        modelo_utr TEXT,
+        fecha_mantenimiento DATE,
+        hora_inicio TIME,
+        hora_termino TIME,
+        responsable TEXT,
+        licencia TEXT,
+        registro TEXT,
+        restaurador TEXT,
+        circuito TEXT,
+        area TEXT,
+        latitud TEXT,
+        longitud TEXT,
+        direccion TEXT,
+        
+        -- Radio/Gabinete
+        radio_gabinete TEXT,
+        potencia_salida REAL,
+        rssi REAL,
+        umbral_recepcion REAL,
+        frecuencia_mhz TEXT,
+        rx TEXT,
+        tx TEXT,
+        cable_pigtail TEXT,
+        supresor TEXT,
+        cable_lt TEXT,
+        altura_antena REAL,
+        repetidor_enlace TEXT,
+        canal_ucm TEXT,
+        
+        -- Actividades Realizadas (JSON array)
+        actividades TEXT,
+        
+        -- Mediciones Técnicas
+        potencia_radio REAL,
+        potencia_incidente REAL,
+        potencia_reflejada REAL,
+        vswr REAL,
+        voltaje_acometida REAL,
+        resistencia_tierra REAL,
+        voltaje_fuente REAL,
+        resistencia_bateria REAL,
+        porcentaje_bateria REAL,
+        angulo_azimut REAL,
+        
+        -- Materiales y Observaciones
         materiales TEXT,
+        calibre_bajante TEXT,
         observaciones TEXT,
+        
+        -- Fotografías (JSON con rutas)
+        fotografias TEXT,
+        codigo_radio TEXT,
+        
+        -- Control
         pdf_path TEXT,
         status TEXT DEFAULT 'pendiente' CHECK(status IN ('pendiente', 'completado', 'revisado')),
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
