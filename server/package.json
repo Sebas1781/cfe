@@ -6,7 +6,6 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "postinstall": "cd server && npm install",
     "migrate": "node database/migrate.js"
   },
   "keywords": ["cfe", "reports", "pdf"],
