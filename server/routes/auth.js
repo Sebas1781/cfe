@@ -37,9 +37,8 @@ router.post('/login', [
       { 
         id: user.id, 
         numero_trabajador: user.numero_trabajador,
-        email: user.email,
-        role: user.role,
-        name: user.name 
+        nombre_completo: user.nombre_completo,
+        role: user.role
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
@@ -50,8 +49,7 @@ router.post('/login', [
       user: {
         id: user.id,
         numero_trabajador: user.numero_trabajador,
-        email: user.email,
-        name: user.name,
+        nombre_completo: user.nombre_completo,
         role: user.role
       }
     });

@@ -23,8 +23,9 @@ export default function Login() {
     
     try {
       const user = await authService.login(data.numero_trabajador, data.password);
+      console.log('Usuario logueado:', user);
       login(user);
-      navigate(user.role === 'admin' ? '/admin' : '/formulario');
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message);
     } finally {

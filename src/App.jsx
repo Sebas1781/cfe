@@ -23,15 +23,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         
-        <Route
-          path="/formulario"
-          element={
-            <PrivateRoute allowedRoles={['trabajador']}>
-              <FormularioTrabajador />
-            </PrivateRoute>
-          }
-        />
-        
+        {/* Dashboard - admin y trabajador */}
         <Route
           path="/dashboard"
           element={
@@ -41,6 +33,7 @@ function App() {
           }
         />
 
+        {/* Nuevo reporte - admin y trabajador */}
         <Route
           path="/nuevo-reporte"
           element={
@@ -50,6 +43,7 @@ function App() {
           }
         />
 
+        {/* Editar reporte - admin y trabajador */}
         <Route
           path="/editar-reporte/:id"
           element={
@@ -59,6 +53,7 @@ function App() {
           }
         />
 
+        {/* Lista de reportes - admin y trabajador */}
         <Route
           path="/reportes"
           element={
@@ -68,6 +63,7 @@ function App() {
           }
         />
 
+        {/* Administrador de usuarios - solo admin */}
         <Route
           path="/usuarios"
           element={
@@ -77,6 +73,7 @@ function App() {
           }
         />
         
+        {/* Ruta admin - solo admin */}
         <Route
           path="/admin"
           element={

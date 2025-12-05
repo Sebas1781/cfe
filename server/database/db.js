@@ -54,9 +54,8 @@ const createTables = async () => {
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         numero_trabajador TEXT UNIQUE NOT NULL,
-        email TEXT,
+        nombre_completo TEXT NOT NULL,
         password TEXT NOT NULL,
-        name TEXT NOT NULL,
         role TEXT NOT NULL CHECK(role IN ('admin', 'trabajador')),
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -159,13 +158,24 @@ const seedDefaultUsers = async () => {
   const bcrypt = require('bcrypt');
   
   try {
+    // Migración: Agregar columna nombre_completo si no existe
+    try {
+      await run('ALTER TABLE users ADD COLUMN nombre_completo TEXT');
+      console.log('✅ Columna nombre_completo agregada');
+      
+      // Copiar datos de name a nombre_completo si existen
+      await run('UPDATE users SET nombre_completo = name WHERE nombre_completo IS NULL');
+    } catch (err) {
+      // La columna ya existe, continuar
+    }
+    
     const checkAdmin = await get('SELECT * FROM users WHERE numero_trabajador = ?', ['00001']);
     
     if (!checkAdmin) {
       const hashedPassword = bcrypt.hashSync('admin123', 10);
       await run(
-        'INSERT INTO users (numero_trabajador, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
-        ['00001', 'admin@cfe.com', hashedPassword, 'Administrador CFE', 'admin']
+        'INSERT INTO users (numero_trabajador, password, nombre_completo, role) VALUES (?, ?, ?, ?)',
+        ['00001', hashedPassword, 'Administrador CFE', 'admin']
       );
       console.log('✅ Usuario admin creado: 00001 / admin123');
     }
@@ -175,8 +185,8 @@ const seedDefaultUsers = async () => {
     if (!checkWorker) {
       const hashedPassword = bcrypt.hashSync('12345', 10);
       await run(
-        'INSERT INTO users (numero_trabajador, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
-        ['12345', 'trabajador@cfe.com', hashedPassword, 'Juan Pérez López', 'trabajador']
+        'INSERT INTO users (numero_trabajador, password, nombre_completo, role) VALUES (?, ?, ?, ?)',
+        ['12345', hashedPassword, 'Juan Pérez López', 'trabajador']
       );
       console.log('✅ Usuario trabajador creado: 12345 / 12345');
     }

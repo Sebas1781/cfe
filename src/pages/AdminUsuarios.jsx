@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiClient } from '../config/api';
 
 const AdminUsuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -25,19 +26,11 @@ const AdminUsuarios = () => {
   const loadUsuarios = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3000/api/users', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      if (!response.ok) throw new Error('Error al cargar usuarios');
-      
-      const data = await response.json();
+      const data = await apiClient.get('/users');
       setUsuarios(data);
     } catch (error) {
       console.error('Error:', error);
-      alert('Error al cargar usuarios');
+      alert('Error al cargar usuarios. Verifica que tengas permisos de administrador.');
     } finally {
       setLoading(false);
     }
@@ -86,12 +79,6 @@ const AdminUsuarios = () => {
     if (!validateForm()) return;
 
     try {
-      const url = editingUser 
-        ? `http://localhost:3000/api/users/${editingUser.id}`
-        : 'http://localhost:3000/api/users';
-      
-      const method = editingUser ? 'PUT' : 'POST';
-      
       const body = {
         numero_trabajador: formData.numero_trabajador,
         nombre_completo: formData.nombre_completo
@@ -102,26 +89,19 @@ const AdminUsuarios = () => {
         body.password = formData.password;
       }
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(body)
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Error al guardar usuario');
+      if (editingUser) {
+        await apiClient.put(`/users/${editingUser.id}`, body);
+        alert('Usuario actualizado exitosamente');
+      } else {
+        await apiClient.post('/users', body);
+        alert('Usuario creado exitosamente');
       }
 
-      alert(editingUser ? 'Usuario actualizado exitosamente' : 'Usuario creado exitosamente');
       resetForm();
       loadUsuarios();
     } catch (error) {
       console.error('Error:', error);
-      alert(error.message);
+      alert(error.message || 'Error al guardar usuario');
     }
   };
 
@@ -140,15 +120,7 @@ const AdminUsuarios = () => {
     if (!confirm('¿Está seguro de eliminar este usuario?')) return;
 
     try {
-      const response = await fetch(`http://localhost:3000/api/users/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) throw new Error('Error al eliminar usuario');
-
+      await apiClient.delete(`/users/${id}`);
       alert('Usuario eliminado exitosamente');
       loadUsuarios();
     } catch (error) {
