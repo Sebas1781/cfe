@@ -92,4 +92,32 @@ export const reportService = {
       throw new Error('Error al descargar XLSX: ' + error.message);
     }
   },
+  
+  // Eliminar reporte
+  async deleteReport(reportId) {
+    try {
+      return await apiClient.delete(`/reports/${reportId}`);
+    } catch (error) {
+      throw new Error('Error al eliminar reporte: ' + error.message);
+    }
+  },
+  
+  // Obtener un reporte específico
+  async getReportById(reportId) {
+    try {
+      const response = await apiClient.get(`/reports/${reportId}`);
+      return response.reporte;
+    } catch (error) {
+      throw new Error('Error al obtener reporte: ' + error.message);
+    }
+  },
+  
+  // Actualizar reporte
+  async updateReport(reportId, formData) {
+    try {
+      return await apiClient.put(`/reports/${reportId}`, formData);
+    } catch (error) {
+      throw new Error('Error al actualizar reporte: ' + error.message);
+    }
+  },
 };

@@ -7,7 +7,9 @@ import Login from './pages/Login';
 import FormularioTrabajador from './pages/FormularioTrabajador';
 import AdminDashboard from './pages/AdminDashboard';
 import NuevoReporte from './pages/NuevoReporte';
+import EditarReporte from './pages/EditarReporte';
 import ListaReportes from './pages/ListaReportes';
+import AdminUsuarios from './pages/AdminUsuarios';
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -49,10 +51,28 @@ function App() {
         />
 
         <Route
+          path="/editar-reporte/:id"
+          element={
+            <PrivateRoute>
+              <EditarReporte />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
           path="/reportes"
           element={
             <PrivateRoute>
               <ListaReportes />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/usuarios"
+          element={
+            <PrivateRoute allowedRoles={['admin']}>
+              <AdminUsuarios />
             </PrivateRoute>
           }
         />

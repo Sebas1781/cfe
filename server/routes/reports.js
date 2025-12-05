@@ -268,6 +268,105 @@ router.patch('/:id/status', [authMiddleware, requireRole('admin')], async (req, 
   }
 });
 
+// Actualizar reporte completo
+router.put('/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const formData = req.body;
+    
+    // Verificar que el reporte existe
+    const existingReport = await get('SELECT * FROM reports WHERE id = ?', [id]);
+    if (!existingReport) {
+      return res.status(404).json({ error: 'Reporte no encontrado' });
+    }
+    
+    // Verificar permisos
+    if (req.user.role === 'trabajador' && existingReport.user_id !== req.user.id) {
+      return res.status(403).json({ error: 'No tienes permisos' });
+    }
+    
+    // Actualizar todos los campos
+    await run(
+      `UPDATE reports SET
+        tipo_mantenimiento = ?, modelo_utr = ?, fecha_mantenimiento = ?, hora_inicio = ?, hora_termino = ?,
+        responsable = ?, licencia = ?, registro = ?, restaurador = ?, circuito = ?, area = ?,
+        latitud = ?, longitud = ?, direccion = ?,
+        radio_gabinete = ?, potencia_salida = ?, rssi = ?, umbral_recepcion = ?, frecuencia_mhz = ?,
+        rx = ?, tx = ?, cable_pigtail = ?, supresor = ?, cable_lt = ?, altura_antena = ?,
+        repetidor_enlace = ?, canal_ucm = ?, actividades = ?,
+        potencia_radio = ?, potencia_incidente = ?, potencia_reflejada = ?, vswr = ?,
+        voltaje_acometida = ?, resistencia_tierra = ?, voltaje_fuente = ?, resistencia_bateria = ?,
+        porcentaje_bateria = ?, angulo_azimut = ?, materiales = ?, calibre_bajante = ?,
+        observaciones = ?, fotografias = ?, codigo_radio = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?`,
+      [
+        formData.tipoMantenimiento || null,
+        formData.modeloUTR || null,
+        formData.fechaMantenimiento || null,
+        formData.horaInicio || null,
+        formData.horaTermino || null,
+        formData.responsable || null,
+        formData.licencia || null,
+        formData.registro || null,
+        formData.restaurador || null,
+        formData.circuito || null,
+        formData.area || null,
+        formData.latitud || null,
+        formData.longitud || null,
+        formData.direccion || null,
+        formData.radioGabinete || null,
+        formData.potenciaSalida || null,
+        formData.rssi || null,
+        formData.umbralRecepcion || null,
+        formData.frecuenciaMhz || null,
+        formData.rx || null,
+        formData.tx || null,
+        formData.cablePigtail || null,
+        formData.supresor || null,
+        formData.cableLT || null,
+        formData.alturaAntena || null,
+        formData.repetidorEnlace || null,
+        formData.canalUCM || null,
+        formData.actividades ? JSON.stringify(formData.actividades) : null,
+        formData.potenciaRadio || null,
+        formData.potenciaIncidente || null,
+        formData.potenciaReflejada || null,
+        formData.vswr || null,
+        formData.voltajeAcometida || null,
+        formData.resistenciaTierra || null,
+        formData.voltajeFuente || null,
+        formData.resistenciaBateria || null,
+        formData.porcentajeBateria || null,
+        formData.anguloAzimut || null,
+        formData.materiales ? JSON.stringify(formData.materiales) : null,
+        formData.calibreBajante || null,
+        formData.observaciones || null,
+        formData.fotografias ? JSON.stringify(formData.fotografias) : null,
+        formData.codigoRadio || null,
+        id
+      ]
+    );
+    
+    // Regenerar PDF
+    try {
+      const pdfPath = await generatePDF({
+        ...formData,
+        folio: existingReport.folio,
+        user_name: req.user.name,
+        fecha: formData.fechaMantenimiento || existingReport.fecha_mantenimiento
+      });
+      await run('UPDATE reports SET pdf_path = ? WHERE id = ?', [pdfPath, id]);
+    } catch (pdfError) {
+      console.error('Error regenerando PDF:', pdfError);
+    }
+    
+    res.json({ message: 'Reporte actualizado exitosamente' });
+  } catch (error) {
+    console.error('Error al actualizar reporte:', error);
+    res.status(500).json({ error: 'Error al actualizar reporte', details: error.message });
+  }
+});
+
 // Eliminar reporte (solo admin)
 router.delete('/:id', [authMiddleware, requireRole('admin')], async (req, res) => {
   try {

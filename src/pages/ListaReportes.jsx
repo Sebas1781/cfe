@@ -56,21 +56,31 @@ export default function ListaReportes() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este reporte?')) return;
+    if (!confirm('¿Estás seguro de eliminar este reporte? Esta acción no se puede deshacer.')) return;
     try {
-      // TODO: Implementar delete endpoint
-      alert('Función de eliminación pendiente');
+      await reportService.deleteReport(id);
+      alert('Reporte eliminado exitosamente');
+      loadReportes(); // Recargar la lista
     } catch (error) {
-      alert('Error al eliminar reporte');
+      console.error('Error eliminando reporte:', error);
+      alert('Error al eliminar el reporte');
     }
   };
 
-  // Filtrado y búsqueda
+  // Filtrado y búsqueda por nombre del trabajador
   const filteredReportes = reportes.filter(reporte => {
-    const matchSearch = reporte.user_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                       reporte.folio?.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchSearch;
+    const matchSearch = searchTerm === '' || 
+                       reporte.responsable?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       reporte.user_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchFilter = filterBy === '' ||
+                       reporte.responsable?.toLowerCase().includes(filterBy.toLowerCase());
+    
+    return matchSearch && matchFilter;
   });
+  
+  // Obtener lista única de trabajadores para el filtro
+  const trabajadores = [...new Set(reportes.map(r => r.responsable || r.user_name).filter(Boolean))];
 
   // Paginación
   const totalPages = Math.ceil(filteredReportes.length / itemsPerPage);
@@ -156,7 +166,7 @@ export default function ListaReportes() {
               <div className="flex-1">
                 <input
                   type="text"
-                  placeholder="Buscar..."
+                  placeholder="Buscar por nombre del trabajador..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A859] focus:border-transparent"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -168,12 +178,15 @@ export default function ListaReportes() {
                   value={filterBy}
                   onChange={(e) => setFilterBy(e.target.value)}
                 >
-                  <option value="">Filtrar por:</option>
-                  <option value="pendiente">Pendiente</option>
-                  <option value="completado">Completado</option>
-                  <option value="revisado">Revisado</option>
+                  <option value="">Todos los trabajadores</option>
+                  {trabajadores.map((trabajador, idx) => (
+                    <option key={idx} value={trabajador}>{trabajador}</option>
+                  ))}
                 </select>
-                <button className="px-6 py-2 bg-[#00A859] text-white rounded-lg hover:bg-[#008f4d] transition-colors">
+                <button 
+                  onClick={() => navigate('/nuevo-reporte')}
+                  className="px-6 py-2 bg-[#00A859] text-white rounded-lg hover:bg-[#008f4d] transition-colors"
+                >
                   Agregar
                 </button>
               </div>
@@ -223,20 +236,33 @@ export default function ListaReportes() {
                               {new Date(reporte.updated_at || reporte.created_at).toLocaleDateString('es-MX')}
                             </td>
                             <td className="px-6 py-4">
-                              <div className="flex gap-2">
+                              <div className="flex gap-3">
+                                <button
+                                  onClick={() => navigate(`/editar-reporte/${reporte.id}`)}
+                                  className="p-2 bg-green-100 text-green-600 hover:bg-green-200 rounded-lg transition-colors"
+                                  title="Editar reporte"
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </button>
                                 <button
                                   onClick={() => handleDownloadPDF(reporte.id)}
-                                  className="text-red-600 hover:text-red-800"
+                                  className="p-2 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors"
                                   title="Descargar PDF"
                                 >
-                                  📄
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                  </svg>
                                 </button>
                                 <button
                                   onClick={() => handleDelete(reporte.id)}
-                                  className="text-red-600 hover:text-red-800"
-                                  title="Eliminar"
+                                  className="p-2 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition-colors"
+                                  title="Eliminar reporte"
                                 >
-                                  🗑️
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
                                 </button>
                               </div>
                             </td>

@@ -31,7 +31,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  crossOriginEmbedderPolicy: false
+}));
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true
@@ -40,8 +43,15 @@ app.use(morgan('dev'));
 app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({ extended: true, limit: '500mb' }));
 
-// Servir archivos estáticos (PDFs)
-app.use('/reports', express.static(path.join(__dirname, 'reports/generated')));
+// Middleware para agregar headers CORS a archivos estáticos
+app.use('/reports', (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+});
+
+// Servir archivos estáticos (PDFs e imágenes)
+app.use('/reports/generated', express.static(path.join(__dirname, 'reports/generated')));
 app.use('/reports/temp', express.static(path.join(__dirname, 'reports/temp')));
 
 // Routes

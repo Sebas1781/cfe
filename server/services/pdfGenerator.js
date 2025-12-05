@@ -107,9 +107,9 @@ const generatePDF = async (data) => {
     <div class="header">
       ${logo1Base64 ? `<img src="data:image/png;base64,${logo1Base64}" class="logo" alt="CFE">` : ''}
       <div class="header-center">
-        <h1>COMISI�N FEDERAL DE ELECTRICIDAD</h1>
-        <p>DIVISI�N DE DISTRIBUCI�N CENTRO ORIENTE</p>
-        <p>SUBGERENCIA DE DISTRIBUCI�N</p>
+        <h1>COMISION FEDERAL DE ELECTRICIDAD</h1>
+        <p>DIVISIÓN DE DISTRIBUCIÓN CENTRO ORIENTE</p>
+        <p>SUBGERENCIA DE DISTRIBUCIÓN</p>
         <p>ZONA PACHUCA</p>
         <p><strong>COMUNICACIONES</strong></p>
         <p>FORMATO DE MANTENIMIENTO RADIOS DATOS</p>
@@ -117,14 +117,14 @@ const generatePDF = async (data) => {
       ${logo2Base64 ? `<img src="data:image/png;base64,${logo2Base64}" class="logo" alt="SUTERM">` : ''}
     </div>
 
-    <!-- Informaci�n b�sica -->
+    <!-- Información basica -->
     <div class="section-title">REPORTE DE MANTENIMIENTO - UNIDAD TERMINAL REMOTA DE POSTE</div>
     <table>
       <tr><th colspan="2">MODELO</th><th colspan="2">MANTENIMIENTO PREVENTIVO</th></tr>
       <tr><td colspan="2">${data.modelo_utr || data.modeloUTR || 'Arteche Smart P500'}</td><td colspan="2">X</td></tr>
     </table>
 
-    <div class="section-title">INFORMACI�N B�SICA</div>
+    <div class="section-title">INFORMACIÓN BASICA</div>
     <table>
       <tr>
         <td class="col-label">Restaurador:</td><td>${data.restaurador || ''}</td>
@@ -135,11 +135,11 @@ const generatePDF = async (data) => {
         <td class="col-label">Fecha:</td><td>${data.fecha_mantenimiento || data.fechaMantenimiento ? new Date(data.fecha_mantenimiento || data.fechaMantenimiento).toLocaleDateString('es-MX') : ''}</td>
       </tr>
       <tr>
-        <td class="col-label">�rea:</td><td>${data.area || 'Pachuca'}</td>
+        <td class="col-label">Area:</td><td>${data.area || 'Pachuca'}</td>
         <td class="col-label">Registro:</td><td>${data.registro || ''}</td>
       </tr>
       <tr>
-        <td class="col-label">Direcci�n:</td><td colspan="3">${data.direccion || ''}</td>
+        <td class="col-label">Dirección:</td><td colspan="3">${data.direccion || ''}</td>
       </tr>
       <tr>
         <td class="col-label">Latitud:</td><td>${data.latitud || ''}</td>
@@ -151,12 +151,12 @@ const generatePDF = async (data) => {
       </tr>
       <tr>
         <td colspan="2"></td>
-        <td class="col-label">Hora de t�rmino:</td><td>${data.hora_termino || data.horaTermino || ''}</td>
+        <td class="col-label">Hora de término:</td><td>${data.hora_termino || data.horaTermino || ''}</td>
       </tr>
     </table>
 
     <!-- Sistema de comunicaciones -->
-    <div class="section-title">INFORMACI�N B�SICA DE SISTEMA DE COMUNICACIONES</div>
+    <div class="section-title">INFORMACIÓN BÁSICA DE SISTEMA DE COMUNICACIONES</div>
     <table>
       <tr>
         <td class="col-label">NS Radio/Gabinete:</td><td>${data.radio_gabinete || data.radioGabinete || ''}</td>
@@ -171,7 +171,7 @@ const generatePDF = async (data) => {
         <td class="col-label">Cable de L.T.:</td><td>${data.cable_lt || data.cableLT || ''}</td>
       </tr>
       <tr>
-        <td class="col-label">Umbral de recepci�n:</td><td>${data.umbral_recepcion || data.umbralRecepcion || ''}</td>
+        <td class="col-label">Umbral de recepción:</td><td>${data.umbral_recepcion || data.umbralRecepcion || ''}</td>
         <td class="col-label">Antena:</td><td>${data.altura_antena || data.alturaAntena || ''}</td>
       </tr>
       <tr>
@@ -201,19 +201,19 @@ const generatePDF = async (data) => {
       </tr>
       <tr>
         <td class="col-label">Potencia reflejada W:</td><td>${data.potencia_reflejada || data.potenciaReflejada || ''}</td>
-        <td class="col-label">Voltaje bater�a Vcd:</td><td>${data.porcentaje_bateria || data.porcentajeBateria || ''}</td>
+        <td class="col-label">Voltaje batería Vcd:</td><td>${data.porcentaje_bateria || data.porcentajeBateria || ''}</td>
       </tr>
       <tr>
         <td class="col-label">VSWR:</td><td>${data.vswr || ''}</td>
-        <td class="col-label">Resistencia bater�a mO:</td><td>${data.resistencia_bateria || data.resistenciaBateria || ''}</td>
+        <td class="col-label">Resistencia batería mO:</td><td>${data.resistencia_bateria || data.resistenciaBateria || ''}</td>
       </tr>
       <tr>
         <td class="col-label">Voltaje acometida:</td><td>${data.voltaje_acometida || data.voltajeAcometida || ''}</td>
-        <td class="col-label">% de vida bater�a:</td><td>${data.porcentaje_bateria || data.porcentajeBateria || ''}</td>
+        <td class="col-label">% de vida batería:</td><td>${data.porcentaje_bateria || data.porcentajeBateria || ''}</td>
       </tr>
       <tr>
         <td class="col-label">Resistencia de Tierra:</td><td>${data.resistencia_tierra || data.resistenciaTierra || ''}</td>
-        <td class="col-label">�ngulo de Azimut�:</td><td>${data.angulo_azimut || data.anguloAzimut || ''}</td>
+        <td class="col-label">Ángulo de Azimut:</td><td>${data.angulo_azimut || data.anguloAzimut || ''}</td>
       </tr>
     </table>
 
@@ -221,7 +221,7 @@ const generatePDF = async (data) => {
     <div class="section-title">MANTENIMIENTO A SISTEMA DE COMUNICACIONES</div>
     <table class="checkbox-table">
       <tr>
-        <th></th><th>S�</th><th>No</th><th></th><th>S�</th><th>No</th>
+        <th></th><th>Sí</th><th>No</th><th></th><th>Sí</th><th>No</th>
       </tr>
       ${(() => {
         const parseActividades = () => {
@@ -236,12 +236,12 @@ const generatePDF = async (data) => {
         
         return `
         <tr>
-          <td class="col-label">Fotograf�as de manto:</td>
-          <td>${tiene('fotograf�a') ? 'X' : ''}</td>
-          <td>${!tiene('fotograf�a') ? 'X' : ''}</td>
-          <td class="col-label">Impermeabilizaci�n de conectores:</td>
-          <td>${tiene('impermeabilizaci�n') ? 'X' : ''}</td>
-          <td>${!tiene('impermeabilizaci�n') ? 'X' : ''}</td>
+          <td class="col-label">Fotografías de manto:</td>
+          <td>${tiene('fotografía') ? 'X' : ''}</td>
+          <td>${!tiene('fotografía') ? 'X' : ''}</td>
+          <td class="col-label">Impermeabilización de conectores:</td>
+          <td>${tiene('impermeabilización') ? 'X' : ''}</td>
+          <td>${!tiene('impermeabilización') ? 'X' : ''}</td>
         </tr>
         <tr>
           <td class="col-label">Mediciones de RF:</td>
@@ -260,9 +260,9 @@ const generatePDF = async (data) => {
           <td>${!tiene('cambio de l.t') ? 'X' : ''}</td>
         </tr>
         <tr>
-          <td class="col-label">Medici�n de bater�a:</td>
-          <td>${tiene('bater�a') ? 'X' : ''}</td>
-          <td>${!tiene('bater�a') ? 'X' : ''}</td>
+          <td class="col-label">Medición de batería:</td>
+          <td>${tiene('batería') ? 'X' : ''}</td>
+          <td>${!tiene('batería') ? 'X' : ''}</td>
           <td class="col-label">Cambio de supresor:</td>
           <td>${tiene('cambio de supresor') ? 'X' : ''}</td>
           <td>${!tiene('cambio de supresor') ? 'X' : ''}</td>
@@ -276,9 +276,9 @@ const generatePDF = async (data) => {
           <td>${!tiene('pigtail') ? 'X' : ''}</td>
         </tr>
         <tr>
-          <td class="col-label">Ajuste de torniller�a:</td>
-          <td>${tiene('torniller�a') ? 'X' : ''}</td>
-          <td>${!tiene('torniller�a') ? 'X' : ''}</td>
+          <td class="col-label">Ajuste de tornillería:</td>
+          <td>${tiene('tornillería') ? 'X' : ''}</td>
+          <td>${!tiene('tornillería') ? 'X' : ''}</td>
           <td class="col-label">Cambio de radio:</td>
           <td>${tiene('cambio de radio') ? 'X' : ''}</td>
           <td>${!tiene('cambio de radio') ? 'X' : ''}</td>
@@ -294,11 +294,11 @@ const generatePDF = async (data) => {
       })()}
     </table>
 
-    <!-- Instalaci�n de Equipo -->
-    <div class="section-title">INSTALACI�N DE EQUIPO</div>
+    <!-- Instalación de Equipo -->
+    <div class="section-title">INSTALACIÓN DE EQUIPO</div>
     <table class="checkbox-table">
       <tr>
-        <th></th><th>S�</th><th>No</th><th></th><th>S�</th><th>No</th>
+        <th></th><th>Sí</th><th>No</th><th></th><th>Sí</th><th>No</th>
       </tr>
       ${(() => {
         const parseMateriales = () => {
@@ -363,14 +363,14 @@ const generatePDF = async (data) => {
     <div class="footer">FKM-UHF-15-01</div>
   </div>
 
-  <!-- Segunda p�gina: Fotograf�as -->
+  <!-- Segunda página: Fotografías -->
   <div class="page" style="page-break-before: always;">
     <div class="header">
       ${logo1Base64 ? `<img src="data:image/png;base64,${logo1Base64}" class="logo" alt="CFE">` : ''}
       <div class="header-center">
-        <h1>COMISI�N FEDERAL DE ELECTRICIDAD</h1>
-        <p>DIVISI�N DE DISTRIBUCI�N CENTRO ORIENTE</p>
-        <p>SUBGERENCIA DE DISTRIBUCI�N</p>
+        <h1>COMISIÓN FEDERAL DE ELECTRICIDAD</h1>
+        <p>DIVISIÓN DE DISTRIBUCIÓN CENTRO ORIENTE</p>
+        <p>SUBGERENCIA DE DISTRIBUCIÓN</p>
         <p>ZONA PACHUCA</p>
       </div>
       ${logo2Base64 ? `<img src="data:image/png;base64,${logo2Base64}" class="logo" alt="SUTERM">` : ''}
@@ -389,7 +389,7 @@ const generatePDF = async (data) => {
     </div>
 
     ${data.codigo_radio || data.codigoRadio ? `
-    <div class="section-title">CONFIGURACI�N DE RADIO</div>
+    <div class="section-title">CONFIGURACIÓN DE RADIO</div>
     <table><tr><td style="padding: 8px; font-family: monospace; font-size: 6px; white-space: pre-wrap;">${data.codigo_radio || data.codigoRadio}</td></tr></table>
     ` : ''}
 
