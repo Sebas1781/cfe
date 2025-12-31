@@ -1,6 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faHome, 
+  faUser, 
+  faClipboardList, 
+  faDoorOpen,
+  faFileAlt,
+  faUsers,
+  faKey
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -8,60 +18,39 @@ export default function AdminDashboard() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const sidebarItems = [
-    { icon: '🏠', label: 'Dashboard', active: true },
-    { icon: '👤', label: 'Perfil' },
-    { icon: '📋', label: 'Reportes' },
-    { icon: '🚪', label: 'Cerrar Sesión', action: logout }
+    { icon: faHome, label: 'Dashboard', active: true },
+    { icon: faUser, label: 'Perfil' },
+    { icon: faClipboardList, label: 'Reportes' },
+    { icon: faDoorOpen, label: 'Cerrar Sesión', action: logout }
   ];
 
   // Todas las opciones disponibles
   const allButtons = [
     { 
-      icon: (
-        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-          <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/>
-        </svg>
-      ),
+      icon: faFileAlt,
       label: 'Generar nuevo reporte',
       action: () => navigate('/nuevo-reporte'),
       roles: ['admin', 'trabajador']
     },
     { 
-      icon: (
-        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-        </svg>
-      ),
+      icon: faClipboardList,
       label: 'Administrador de reportes',
       action: () => navigate('/reportes'),
       roles: ['admin', 'trabajador']
     },
     { 
-      icon: (
-        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-        </svg>
-      ),
+      icon: faUsers,
       label: 'Administrador de usuarios',
       action: () => navigate('/usuarios'),
       roles: ['admin']
     },
     { 
-      icon: (
-        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/>
-        </svg>
-      ),
+      icon: faUser,
       label: 'Mi perfil',
       roles: ['admin', 'trabajador']
     },
     { 
-      icon: (
-        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clipRule="evenodd"/>
-        </svg>
-      ),
+      icon: faKey,
       label: 'Cambiar contraseña',
       roles: ['admin', 'trabajador']
     }
@@ -84,7 +73,7 @@ export default function AdminDashboard() {
                   onClick={item.action}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <span className="text-xl">{item.icon}</span>
+                  <FontAwesomeIcon icon={item.icon} className="text-xl" />
                   <span>{item.label}</span>
                 </button>
               ) : (
@@ -96,7 +85,7 @@ export default function AdminDashboard() {
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
-                  <span className="text-xl">{item.icon}</span>
+                  <FontAwesomeIcon icon={item.icon} className="text-xl" />
                   <span>{item.label}</span>
                 </button>
               )
@@ -147,7 +136,7 @@ export default function AdminDashboard() {
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <span className="text-xl">{item.icon}</span>
+                  <FontAwesomeIcon icon={item.icon} className="text-xl" />
                   <span>{item.label}</span>
                 </button>
               ) : (
@@ -160,7 +149,7 @@ export default function AdminDashboard() {
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
-                  <span className="text-xl">{item.icon}</span>
+                  <FontAwesomeIcon icon={item.icon} className="text-xl" />
                   <span>{item.label}</span>
                 </button>
               )
@@ -195,7 +184,7 @@ export default function AdminDashboard() {
                 className="bg-white p-8 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 flex flex-col items-center justify-center gap-4 group"
               >
                 <div className="w-20 h-20 bg-[#00A859] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                  {button.icon}
+                  <FontAwesomeIcon icon={button.icon} className="text-white text-3xl" />
                 </div>
                 <span className="text-gray-700 font-medium text-center text-sm">
                   {button.label}
