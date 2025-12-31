@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const https = require('https');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -94,17 +95,42 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`\n🚀 Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`📝 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`💾 Base de datos: ${process.env.DB_PATH || './database/plataformaCFE.db'}`);
-  console.log('\n📚 Endpoints disponibles:');
-  console.log('   POST /api/auth/login');
-  console.log('   POST /api/auth/register');
-  console.log('   GET  /api/reports');
-  console.log('   POST /api/reports/generate');
-  console.log('   GET  /api/reports/:id/download');
-  console.log('   GET  /api/health\n');
-});
+// Iniciar servidor (HTTP o HTTPS según configuración)
+const USE_HTTPS = process.env.USE_HTTPS === 'true';
+
+if (USE_HTTPS) {
+  // Servidor HTTPS
+  const httpsOptions = {
+    key: fs.readFileSync(process.env.SSL_KEY_PATH || path.join(__dirname, 'key.pem')),
+    cert: fs.readFileSync(process.env.SSL_CERT_PATH || path.join(__dirname, 'cert.pem'))
+  };
+  
+  https.createServer(httpsOptions, app).listen(PORT, () => {
+    console.log(`\n🔒 Servidor HTTPS corriendo en https://localhost:${PORT}`);
+    console.log(`📝 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`💾 Base de datos: ${process.env.DB_PATH || './database/plataformaCFE.db'}`);
+    console.log('\n📚 Endpoints disponibles:');
+    console.log('   POST /api/auth/login');
+    console.log('   POST /api/auth/register');
+    console.log('   GET  /api/reports');
+    console.log('   POST /api/reports/generate');
+    console.log('   GET  /api/reports/:id/download');
+    console.log('   GET  /api/health\n');
+  });
+} else {
+  // Servidor HTTP (por defecto)
+  app.listen(PORT, () => {
+    console.log(`\n🚀 Servidor HTTP corriendo en http://localhost:${PORT}`);
+    console.log(`📝 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`💾 Base de datos: ${process.env.DB_PATH || './database/plataformaCFE.db'}`);
+    console.log('\n📚 Endpoints disponibles:');
+    console.log('   POST /api/auth/login');
+    console.log('   POST /api/auth/register');
+    console.log('   GET  /api/reports');
+    console.log('   POST /api/reports/generate');
+    console.log('   GET  /api/reports/:id/download');
+    console.log('   GET  /api/health\n');
+  });
+}
 
 module.exports = app;
