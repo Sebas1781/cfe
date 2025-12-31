@@ -38,18 +38,41 @@ const useFormStore = create(
       },
       
       // Sincronizar formularios pendientes
-      syncPendingForms: async (apiClient) => {
+      syncPendingForms: async () => {
         set({ isSyncing: true });
         const { pendingForms } = get();
         
         for (const form of pendingForms) {
           try {
-            await apiClient.post('/forms', form.data);
-            await localforage.removeItem(`form_${form.id}`);
+            // Detectar la URL del servidor
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+            const port = window.location.port || '3000';
+            const baseURL = hostname === 'localhost' || hostname === '127.0.0.1'
+              ? 'http://localhost:3000/api'
+              : `${protocol}//${hostname}:${port}/api`;
             
-            set((state) => ({
-              pendingForms: state.pendingForms.filter((f) => f.id !== form.id),
-            }));
+            const response = await fetch(`${baseURL}/reports/generate`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+              },
+              body: JSON.stringify(form.data)
+            });
+            
+            if (response.ok) {
+              // Eliminar de IndexedDB si se sincronizó exitosamente
+              await localforage.removeItem(`form_${form.id}`);
+              
+              set((state) => ({
+                pendingForms: state.pendingForms.filter((f) => f.id !== form.id),
+              }));
+              
+              console.log('✅ Formulario sincronizado:', form.id);
+            } else {
+              console.error('❌ Error sincronizando formulario:', form.id);
+            }
           } catch (error) {
             console.error('Error syncing form:', error);
           }

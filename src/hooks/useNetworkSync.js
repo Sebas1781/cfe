@@ -51,13 +51,15 @@ const useNetworkSync = () => {
     console.log(`🔄 Sincronizando ${pendingForms.length} formularios pendientes...`);
 
     try {
-      await syncPendingForms(apiClient);
+      await syncPendingForms();
       setLastSync(new Date());
       console.log('✅ Sincronización completada');
     } catch (error) {
       console.error('❌ Error durante la sincronización:', error);
     } finally {
       setIsSyncing(false);
+    }
+  };
     }
   };
 
