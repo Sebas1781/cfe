@@ -1,9 +1,12 @@
-// Usar ruta relativa cuando esté en producción (mismo origen)
-// En desarrollo usa localhost
+// Detectar el protocolo y hostname actual
+const protocol = window.location.protocol; // 'http:' o 'https:'
+const hostname = window.location.hostname;
+const port = window.location.port || '3000';
+
 const API_URL = import.meta.env.VITE_API_URL || 
-  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  (hostname === 'localhost' || hostname === '127.0.0.1'
     ? 'http://localhost:3000/api'
-    : '/api'); // Ruta relativa en producción
+    : `${protocol}//${hostname}:${port}/api`); // Usa el protocolo actual
 
 export const apiClient = {
   async request(endpoint, options = {}) {
