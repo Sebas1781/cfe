@@ -5,9 +5,12 @@ export const reportService = {
   async uploadImages(formData) {
     try {
       const token = localStorage.getItem('authToken');
-      const baseURL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      const protocol = window.location.protocol;
+      const hostname = window.location.hostname;
+      const port = window.location.port || '3000';
+      const baseURL = hostname === 'localhost' || hostname === '127.0.0.1'
         ? 'http://localhost:3000/api'
-        : '/api';
+        : `${protocol}//${hostname}:${port}/api`;
       const response = await fetch(
         `${baseURL}/uploads/images`,
         {
@@ -48,8 +51,14 @@ export const reportService = {
   async downloadReport(reportId) {
     try {
       const token = localStorage.getItem('authToken');
+      const protocol = window.location.protocol;
+      const hostname = window.location.hostname;
+      const port = window.location.port || '3000';
+      const baseURL = hostname === 'localhost' || hostname === '127.0.0.1'
+        ? 'http://localhost:3000/api'
+        : `${protocol}//${hostname}:${port}/api`;
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/reports/${reportId}/download`,
+        `${baseURL}/reports/${reportId}/download`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -75,8 +84,14 @@ export const reportService = {
   async downloadXlsx(reportId) {
     try {
       const token = localStorage.getItem('authToken');
+      const protocol = window.location.protocol;
+      const hostname = window.location.hostname;
+      const port = window.location.port || '3000';
+      const baseURL = hostname === 'localhost' || hostname === '127.0.0.1'
+        ? 'http://localhost:3000/api'
+        : `${protocol}//${hostname}:${port}/api`;
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/reports/${reportId}/export/xlsx`,
+        `${baseURL}/reports/${reportId}/export/xlsx`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

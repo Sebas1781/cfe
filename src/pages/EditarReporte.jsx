@@ -105,9 +105,12 @@ export default function EditarReporte() {
       if (fotografias && Object.keys(fotografias).length > 0) {
         console.log('📸 Fotografías encontradas en BD:', fotografias);
         const imagesState = {};
-        const baseURL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+        const port = window.location.port || '3000';
+        const baseURL = hostname === 'localhost' || hostname === '127.0.0.1'
           ? 'http://localhost:3000'
-          : ''; // URL base sin /api - vacío usa origen actual
+          : `${protocol}//${hostname}:${port}`;
         
         Object.keys(fotografias).forEach(fieldName => {
           if (Array.isArray(fotografias[fieldName]) && fotografias[fieldName].length > 0) {

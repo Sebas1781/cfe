@@ -18,10 +18,13 @@ const useNetworkSync = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-      // Usar ruta relativa en producción
-      const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
-        : '/api';
+      // Usar protocolo actual en producción
+      const protocol = window.location.protocol;
+      const hostname = window.location.hostname;
+      const port = window.location.port || '3000';
+      const apiUrl = hostname === 'localhost' || hostname === '127.0.0.1'
+        ? 'http://localhost:3000/api'
+        : `${protocol}//${hostname}:${port}/api`;
 
       const response = await fetch(`${apiUrl}/health`, {
         signal: controller.signal,
