@@ -5,8 +5,11 @@ export const reportService = {
   async uploadImages(formData) {
     try {
       const token = localStorage.getItem('authToken');
+      const baseURL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000/api'
+        : '/api';
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/uploads/images`,
+        `${baseURL}/uploads/images`,
         {
           method: 'POST',
           headers: {

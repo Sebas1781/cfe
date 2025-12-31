@@ -172,7 +172,10 @@ export default function NuevoReporte() {
       console.log('📤 Enviando reporte con datos:', formData);
       console.log('📸 Fotografías a enviar:', formData.fotografias);
       
-      const response = await fetch('http://localhost:3000/api/reports/generate', {
+      const baseURL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000/api'
+        : '/api';
+      const response = await fetch(`${baseURL}/reports/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
