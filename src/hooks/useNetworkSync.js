@@ -60,8 +60,6 @@ const useNetworkSync = () => {
       setIsSyncing(false);
     }
   };
-    }
-  };
 
   // Verificar servidor periódicamente
   useEffect(() => {
