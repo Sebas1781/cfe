@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
+import useFormStore from '../stores/formStore';
 import { GoogleMap, Marker } from '@react-google-maps/api';
 import { reportService } from '../services/reportService';
 
@@ -172,12 +173,27 @@ export default function NuevoReporte() {
       console.log('📤 Enviando reporte con datos:', formData);
       console.log('📸 Fotografías a enviar:', formData.fotografias);
       
+      // Verificar si hay conexión a internet
+      if (!navigator.onLine) {
+        console.log('📵 Sin conexión - Guardando en caché local...');
+        
+        // Guardar en IndexedDB para sincronización posterior
+        const { addPendingForm } = useFormStore.getState();
+        await addPendingForm(formData);
+        
+        alert('✅ Reporte guardado offline\n\nSe sincronizará automáticamente cuando regreses a la red WiFi');
+        navigate('/dashboard');
+        return;
+      }
+
+      // Si hay conexión, enviar al servidor
       const protocol = window.location.protocol;
       const hostname = window.location.hostname;
       const port = window.location.port || '3000';
       const baseURL = hostname === 'localhost' || hostname === '127.0.0.1'
         ? 'http://localhost:3000/api'
         : `${protocol}//${hostname}:${port}/api`;
+      
       const response = await fetch(`${baseURL}/reports/generate`, {
         method: 'POST',
         headers: {
@@ -190,14 +206,21 @@ export default function NuevoReporte() {
       const data = await response.json();
 
       if (response.ok) {
-        alert('Reporte creado exitosamente');
+        alert('✅ Reporte creado exitosamente');
         navigate('/dashboard');
       } else {
         alert('Error: ' + (data.error || 'No se pudo crear el reporte'));
       }
     } catch (error) {
       console.error('Error al crear reporte:', error);
-      alert('Error de conexión al crear el reporte');
+      
+      // Si falla la petición, también guardar offline
+      console.log('📵 Error de conexión - Guardando en caché local...');
+      const { addPendingForm } = useFormStore.getState();
+      await addPendingForm(formData);
+      
+      alert('✅ Reporte guardado offline\n\nSe sincronizará automáticamente cuando regreses a la red WiFi');
+      navigate('/dashboard');
     }
   };
 
