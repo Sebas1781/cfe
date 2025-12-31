@@ -65,6 +65,22 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Servir el frontend (archivos estáticos de React)
+if (process.env.NODE_ENV === 'production') {
+  // Servir los archivos estáticos del build
+  app.use(express.static(path.join(__dirname, '../dist')));
+  
+  // Para todas las rutas que no sean API, servir index.html (SPA)
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+  });
+} else {
+  // En desarrollo, solo manejar 404 para rutas API
+  app.use((req, res) => {
+    res.status(404).json({ error: 'Route not found' });
+  });
+}
+
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -74,11 +90,6 @@ app.use((err, req, res, next) => {
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     }
   });
-});
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
 });
 
 app.listen(PORT, () => {
