@@ -18,7 +18,12 @@ const useNetworkSync = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/health`, {
+      // Usar ruta relativa en producción
+      const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+        : '/api';
+
+      const response = await fetch(`${apiUrl}/health`, {
         signal: controller.signal,
         method: 'GET',
       });
