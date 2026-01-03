@@ -19,8 +19,8 @@ export default function AdminDashboard() {
 
   const sidebarItems = [
     { icon: faHome, label: 'Dashboard', active: true },
-    { icon: faUser, label: 'Perfil' },
-    { icon: faClipboardList, label: 'Reportes' },
+    { icon: faUser, label: 'Perfil', action: () => navigate('/perfil') },
+    { icon: faClipboardList, label: 'Reportes', action: () => navigate('/reportes') },
     { icon: faDoorOpen, label: 'Cerrar Sesión', action: logout }
   ];
 
@@ -47,11 +47,13 @@ export default function AdminDashboard() {
     { 
       icon: faUser,
       label: 'Mi perfil',
+      action: () => navigate('/perfil'),
       roles: ['admin', 'trabajador']
     },
     { 
       icon: faKey,
       label: 'Cambiar contraseña',
+      action: () => navigate('/perfil'),
       roles: ['admin', 'trabajador']
     }
   ];

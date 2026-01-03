@@ -10,6 +10,7 @@ import NuevoReporte from './pages/NuevoReporte';
 import EditarReporte from './pages/EditarReporte';
 import ListaReportes from './pages/ListaReportes';
 import AdminUsuarios from './pages/AdminUsuarios';
+import Perfil from './pages/Perfil';
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -59,6 +60,16 @@ function App() {
           element={
             <PrivateRoute>
               <ListaReportes />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Perfil - admin y trabajador */}
+        <Route
+          path="/perfil"
+          element={
+            <PrivateRoute>
+              <Perfil />
             </PrivateRoute>
           }
         />

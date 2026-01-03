@@ -59,3 +59,4 @@ export const apiClient = {
 };
 
 export default apiClient;
+export { API_URL };

@@ -133,7 +133,7 @@ router.post('/generate', [
       [
         folio,
         req.user.id,
-        req.user.name,
+        req.user.nombre_completo,
         // Información Básica
         formData.tipoMantenimiento || null,
         formData.modeloUTR || null,

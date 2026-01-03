@@ -15,6 +15,52 @@ router.get('/', [authMiddleware, requireRole('admin')], async (req, res) => {
   }
 });
 
+// Cambiar contraseña (cualquier usuario autenticado puede cambiar su propia contraseña)
+// IMPORTANTE: Esta ruta debe estar ANTES de /:id para evitar que "change-password" sea interpretado como un ID
+router.put('/change-password', authMiddleware, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    // Validaciones
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ 
+        error: 'Contraseña actual y nueva contraseña son requeridas' 
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ 
+        error: 'La nueva contraseña debe tener al menos 6 caracteres' 
+      });
+    }
+
+    // Obtener usuario con contraseña
+    const user = await get('SELECT id, password FROM users WHERE id = ?', [userId]);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    // Verificar contraseña actual
+    const isValidPassword = await bcrypt.compare(currentPassword, user.password);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Contraseña actual incorrecta' });
+    }
+
+    // Hash de la nueva contraseña
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Actualizar contraseña
+    await run('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId]);
+
+    res.json({ message: 'Contraseña actualizada exitosamente' });
+  } catch (error) {
+    console.error('Error al cambiar contraseña:', error);
+    res.status(500).json({ error: 'Error al cambiar contraseña' });
+  }
+});
+
 // Obtener usuario por ID (solo admin)
 router.get('/:id', [authMiddleware, requireRole('admin')], async (req, res) => {
   try {

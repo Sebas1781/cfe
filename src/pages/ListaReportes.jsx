@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome, faUser, faClipboardList, faDoorOpen } from '@fortawesome/free-solid-svg-icons';
 import useAuthStore from '../stores/authStore';
 import { reportService } from '../services/reportService';
 
@@ -15,10 +17,10 @@ export default function ListaReportes() {
   const itemsPerPage = 5;
 
   const sidebarItems = [
-    { icon: '🏠', label: 'Dashboard', action: () => navigate('/dashboard') },
-    { icon: '👤', label: 'Perfil' },
-    { icon: '📋', label: 'Reportes', action: () => navigate('/reportes') },
-    { icon: '🚪', label: 'Cerrar Sesión', action: logout }
+    { icon: faHome, label: 'Dashboard', action: () => navigate('/dashboard') },
+    { icon: faUser, label: 'Perfil', action: () => navigate('/perfil') },
+    { icon: faClipboardList, label: 'Reportes', action: () => navigate('/reportes') },
+    { icon: faDoorOpen, label: 'Cerrar Sesión', action: logout }
   ];
 
   useEffect(() => {
@@ -100,7 +102,7 @@ export default function ListaReportes() {
                 onClick={item.action}
                 className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <span className="text-xl">{item.icon}</span>
+                <FontAwesomeIcon icon={item.icon} className="text-xl" />
                 <span>{item.label}</span>
               </button>
             ))}
@@ -145,7 +147,7 @@ export default function ListaReportes() {
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                     >
-                      <span className="text-xl">{item.icon}</span>
+                      <FontAwesomeIcon icon={item.icon} className="text-xl" />
                       <span>{item.label}</span>
                     </button>
                   ))}
