@@ -1,12 +1,12 @@
 // Detectar el protocolo y hostname actual
 const protocol = window.location.protocol; // 'http:' o 'https:'
 const hostname = window.location.hostname;
-const port = window.location.port || '3000';
 
+// Con Nginx como proxy, no necesitamos especificar puerto
 const API_URL = import.meta.env.VITE_API_URL || 
   (hostname === 'localhost' || hostname === '127.0.0.1'
     ? 'http://localhost:3000/api'
-    : `${protocol}//${hostname}:${port}/api`); // Usa el protocolo actual
+    : `${protocol}//${hostname}/api`); // Nginx maneja el proxy
 
 export const apiClient = {
   async request(endpoint, options = {}) {
