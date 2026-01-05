@@ -381,12 +381,40 @@ export default function EditarReporte() {
         </div>
       </div>
 
+      {/* Mobile Sidebar Menu */}
       {menuOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-40"
+          className="fixed inset-0 z-40 lg:hidden"
           onClick={() => setMenuOpen(false)}
         />
       )}
+      
+      <aside
+        className={`lg:hidden fixed top-0 left-0 h-full w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${
+          menuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="p-6">
+          <div className="flex justify-center mb-8">
+            <img src="/IMAGES/logocfeNegro.png" alt="CFE" className="h-12" />
+          </div>
+          <nav className="space-y-2">
+            {sidebarItems.map((item, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  item.action && item.action();
+                  setMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <FontAwesomeIcon icon={item.icon} className="text-xl" />
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+      </aside>
 
       {/* Main Content */}
       <main className="flex-1 lg:ml-0 mt-20 lg:mt-0 p-4 lg:p-8">

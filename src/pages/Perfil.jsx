@@ -7,7 +7,9 @@ import {
   faBriefcase, 
   faIdCard,
   faKey,
-  faArrowLeft,
+  faHome,
+  faClipboardList,
+  faDoorOpen,
   faEye,
   faEyeSlash,
   faSave,
@@ -18,7 +20,8 @@ import { apiClient } from '../config/api';
 
 export default function Perfil() {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuthStore();
+  const { user, logout } = useAuthStore();
+  const [menuOpen, setMenuOpen] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -32,6 +35,13 @@ export default function Perfil() {
     newPassword: '',
     confirmPassword: ''
   });
+
+  const sidebarItems = [
+    { icon: faHome, label: 'Dashboard', action: () => navigate('/dashboard') },
+    { icon: faUser, label: 'Perfil', action: () => navigate('/perfil') },
+    { icon: faClipboardList, label: 'Reportes', action: () => navigate('/reportes') },
+    { icon: faDoorOpen, label: 'Cerrar Sesión', action: logout }
+  ];
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
@@ -81,25 +91,87 @@ export default function Perfil() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg">
-        <div className="max-w-4xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar Desktop */}
+      <aside className="hidden lg:block w-64 bg-white shadow-lg">
+        <div className="p-6">
+          <img src="/IMAGES/logocfeNegro.png" alt="CFE" className="h-12 mb-8" />
+          <nav className="space-y-2">
+            {sidebarItems.map((item, index) => (
+              <button
+                key={index}
+                onClick={item.action}
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <FontAwesomeIcon icon={item.icon} className="text-xl" />
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+      </aside>
+
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-md z-50">
+        <div className="flex items-center justify-between p-4">
+          <div className="w-6"></div>
+          <img src="/IMAGES/logocfeNegro.png" alt="CFE" className="h-10" />
           <button
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 text-white/90 hover:text-white transition-colors mb-4"
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="text-gray-700 focus:outline-none"
           >
-            <FontAwesomeIcon icon={faArrowLeft} />
-            <span>Volver al Dashboard</span>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {menuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
           </button>
-          <h1 className="text-3xl font-bold">Mi Perfil</h1>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Profile Information Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      {/* Mobile Sidebar Menu */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-40 lg:hidden"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+      
+      <aside
+        className={`lg:hidden fixed top-0 left-0 h-full w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${
+          menuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="p-6">
+          <div className="flex justify-center mb-8">
+            <img src="/IMAGES/logocfeNegro.png" alt="CFE" className="h-12" />
+          </div>
+          <nav className="space-y-2">
+            {sidebarItems.map((item, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  item.action && item.action();
+                  setMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <FontAwesomeIcon icon={item.icon} className="text-xl" />
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex-1">
+        {/* Content */}
+        <div className="max-w-4xl mx-auto px-4 py-8 pt-20 lg:pt-8">
+          {/* Profile Information Card */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
               <FontAwesomeIcon icon={faUser} className="text-4xl text-green-600" />
@@ -281,6 +353,7 @@ export default function Perfil() {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 }

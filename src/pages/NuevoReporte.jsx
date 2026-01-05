@@ -267,12 +267,18 @@ export default function NuevoReporte() {
         </div>
       </div>
 
-      {/* Menú móvil */}
-      <div
+      {/* Mobile Sidebar Menu */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-40 lg:hidden"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+      
+      <aside
         className={`lg:hidden fixed top-0 left-0 h-full w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${
           menuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
-        style={{ zIndex: 60 }}
       >
         <div className="p-6">
           <div className="flex justify-center mb-8">
@@ -294,14 +300,7 @@ export default function NuevoReporte() {
             ))}
           </nav>
         </div>
-      </div>
-
-      {menuOpen && (
-        <div
-          className="lg:hidden fixed inset-0 z-40"
-          onClick={() => setMenuOpen(false)}
-        />
-      )}
+      </aside>
 
       {/* Main Content */}
       <main className="flex-1 lg:ml-0 mt-20 lg:mt-0 p-4 lg:p-8">
