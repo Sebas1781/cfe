@@ -9,7 +9,9 @@ import {
   faDoorOpen,
   faFileAlt,
   faUsers,
-  faKey
+  faKey,
+  faEdit,
+  faMapMarked
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminDashboard() {
@@ -43,6 +45,18 @@ export default function AdminDashboard() {
       label: 'Administrador de usuarios',
       action: () => navigate('/usuarios'),
       roles: ['admin']
+    },
+    { 
+      icon: faEdit,
+      label: 'Administrador de formularios',
+      action: () => navigate('/formularios'),
+      roles: ['admin']
+    },
+    { 
+      icon: faMapMarked,
+      label: 'Mapa de Restauradores',
+      action: () => navigate('/restauradores'),
+      roles: ['admin', 'trabajador']
     },
     { 
       icon: faUser,

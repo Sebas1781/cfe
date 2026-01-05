@@ -104,7 +104,7 @@ router.post('/generate', [
       `INSERT INTO reports (
         folio, user_id, user_name,
         tipo_mantenimiento, modelo_utr, fecha_mantenimiento, hora_inicio, hora_termino,
-        responsable, licencia, registro, restaurador, circuito, area,
+        responsable, licencia, registro, restaurador, restaurador_id, circuito, area,
         latitud, longitud, direccion,
         radio_gabinete, potencia_salida, rssi, umbral_recepcion,
         frecuencia_mhz, rx, tx, cable_pigtail, supresor, cable_lt,
@@ -118,7 +118,7 @@ router.post('/generate', [
       ) VALUES (
         ?, ?, ?,
         ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?,
         ?, ?, ?,
         ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?,
@@ -144,6 +144,7 @@ router.post('/generate', [
         formData.licencia || null,
         formData.registro || null,
         formData.restaurador || null,
+        formData.restaurador_id || null,
         formData.circuito || null,
         formData.area || null,
         formData.latitud || null,

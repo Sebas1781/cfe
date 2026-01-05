@@ -10,7 +10,11 @@ import NuevoReporte from './pages/NuevoReporte';
 import EditarReporte from './pages/EditarReporte';
 import ListaReportes from './pages/ListaReportes';
 import AdminUsuarios from './pages/AdminUsuarios';
+import AdminFormularios from './pages/AdminFormularios';
 import Perfil from './pages/Perfil';
+import MapaRestauradores from './pages/MapaRestauradores';
+import NuevoRestaurador from './pages/NuevoRestaurador';
+import ScannerQR from './pages/ScannerQR';
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -80,6 +84,46 @@ function App() {
           element={
             <PrivateRoute allowedRoles={['admin']}>
               <AdminUsuarios />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Administrador de formularios - solo admin */}
+        <Route
+          path="/formularios"
+          element={
+            <PrivateRoute allowedRoles={['admin']}>
+              <AdminFormularios />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Mapa de Restauradores - admin y trabajador */}
+        <Route
+          path="/restauradores"
+          element={
+            <PrivateRoute>
+              <MapaRestauradores />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Nuevo Restaurador - admin */}
+        <Route
+          path="/nuevo-restaurador"
+          element={
+            <PrivateRoute allowedRoles={['admin']}>
+              <NuevoRestaurador />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Scanner QR - admin y trabajador */}
+        <Route
+          path="/scanner-qr"
+          element={
+            <PrivateRoute>
+              <ScannerQR />
             </PrivateRoute>
           }
         />

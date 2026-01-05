@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
 import useFormStore from '../stores/formStore';
 import { GoogleMap, Marker } from '@react-google-maps/api';
 import { reportService } from '../services/reportService';
+import { apiClient } from '../config/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faUser, faClipboardList, faDoorOpen } from '@fortawesome/free-solid-svg-icons';
 
@@ -20,6 +21,9 @@ export default function NuevoReporte() {
   });
   const [uploadedImages, setUploadedImages] = useState({});
   const [uploading, setUploading] = useState(false);
+  const [formOptions, setFormOptions] = useState({});
+  const [usuarios, setUsuarios] = useState([]);
+  const [restauradores, setRestauradores] = useState([]);
 
   const sidebarItems = [
     { icon: faHome, label: 'Dashboard', action: () => navigate('/dashboard') },
@@ -27,6 +31,89 @@ export default function NuevoReporte() {
     { icon: faClipboardList, label: 'Reportes', action: () => navigate('/reportes') },
     { icon: faDoorOpen, label: 'Cerrar Sesión', action: logout }
   ];
+
+  // Cargar opciones dinámicas del formulario
+  useEffect(() => {
+    const cargarOpciones = async () => {
+      const categorias = [
+        'tipo_mantenimiento', 'modelo_utr', 'restaurador', 'circuito', 'area', 
+        'frecuencia_mhz', 'rx', 'tx', 'cable_pigtail', 'supresor',
+        'cable_lt', 'repetidor_enlace', 'canal_ucm', 'modelo_gabinete',
+        'tipo_radio', 'tipo_conector', 'tipo_cable', 'tipo_antena', 'antena', 'incidencias'
+      ];
+      
+      const opciones = {};
+      
+      for (const categoria of categorias) {
+        try {
+          const response = await apiClient.get(`/form-options/${categoria}`);
+          opciones[categoria] = response.options || [];
+        } catch (error) {
+          console.error(`Error cargando opciones de ${categoria}:`, error);
+          opciones[categoria] = [];
+        }
+      }
+      
+      setFormOptions(opciones);
+    };
+    
+    cargarOpciones();
+  }, []);
+
+  // Cargar lista de usuarios para el dropdown de Responsable
+  useEffect(() => {
+    const cargarUsuarios = async () => {
+      try {
+        const response = await apiClient.get('/users');
+        setUsuarios(response || []);
+      } catch (error) {
+        console.error('Error cargando usuarios:', error);
+        setUsuarios([]);
+      }
+    };
+    
+    cargarUsuarios();
+  }, []);
+
+  // Cargar lista de restauradores para el dropdown
+  useEffect(() => {
+    const cargarRestauradores = async () => {
+      try {
+        const response = await apiClient.get('/restauradores');
+        setRestauradores(response || []);
+      } catch (error) {
+        console.error('Error cargando restauradores:', error);
+        setRestauradores([]);
+      }
+    };
+    
+    cargarRestauradores();
+  }, []);
+
+  // Calcular VSWR automáticamente cuando cambien las potencias
+  useEffect(() => {
+    const { potenciaIncidente, potenciaReflejada } = formData;
+    
+    if (potenciaIncidente && potenciaReflejada && parseFloat(potenciaIncidente) > 0) {
+      const pi = parseFloat(potenciaIncidente);
+      const pr = parseFloat(potenciaReflejada);
+      
+      // Fórmula VSWR: (1 + √(Pr/Pi)) / (1 - √(Pr/Pi))
+      const reflectionCoefficient = Math.sqrt(pr / pi);
+      
+      // Evitar división por cero
+      if (reflectionCoefficient < 1) {
+        const vswr = (1 + reflectionCoefficient) / (1 - reflectionCoefficient);
+        setFormData(prev => ({ ...prev, vswr: vswr.toFixed(2) }));
+      } else {
+        // Si el coeficiente es >= 1, VSWR es infinito o inválido
+        setFormData(prev => ({ ...prev, vswr: 'Inf' }));
+      }
+    } else if (!potenciaIncidente || !potenciaReflejada) {
+      // Limpiar VSWR si no hay valores
+      setFormData(prev => ({ ...prev, vswr: '' }));
+    }
+  }, [formData.potenciaIncidente, formData.potenciaReflejada]);
 
   const updateFormData = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -196,6 +283,9 @@ export default function NuevoReporte() {
         ? 'http://localhost:3000/api'
         : `${protocol}//${hostname}:${port}/api`;
       
+      console.log('📤 Enviando formData:', formData);
+      console.log('📍 restaurador_id:', formData.restaurador_id, typeof formData.restaurador_id);
+      
       const response = await fetch(`${baseURL}/reports/generate`, {
         method: 'POST',
         headers: {
@@ -325,9 +415,11 @@ export default function NuevoReporte() {
                     onChange={(e) => updateFormData('tipoMantenimiento', e.target.value)}
                   >
                     <option value="">Seleccione una opción</option>
-                    <option value="preventivo">Preventivo</option>
-                    <option value="correctivo">Correctivo</option>
-                    <option value="predictivo">Predictivo</option>
+                    {formOptions.tipo_mantenimiento?.map((opcion) => (
+                      <option key={opcion.id} value={opcion.valor}>
+                        {opcion.valor}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -339,9 +431,11 @@ export default function NuevoReporte() {
                     onChange={(e) => updateFormData('modeloUTR', e.target.value)}
                   >
                     <option value="">Seleccione una opción</option>
-                    <option value="UTR-100">UTR-100</option>
-                    <option value="UTR-200">UTR-200</option>
-                    <option value="UTR-300">UTR-300</option>
+                    {formOptions.modelo_utr?.map((opcion) => (
+                      <option key={opcion.id} value={opcion.valor}>
+                        {opcion.valor}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -382,10 +476,12 @@ export default function NuevoReporte() {
                     value={formData.responsable || ''}
                     onChange={(e) => updateFormData('responsable', e.target.value)}
                   >
-                    <option value="">Seleccione una opción</option>
-                    <option value="Juan Pérez">Juan Pérez</option>
-                    <option value="María González">María González</option>
-                    <option value="Carlos López">Carlos López</option>
+                    <option value="">Seleccione un responsable</option>
+                    {usuarios.map((usuario) => (
+                      <option key={usuario.id} value={usuario.nombre_completo}>
+                        {usuario.nombre_completo}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -413,13 +509,18 @@ export default function NuevoReporte() {
 
                 <div>
                   <label className="block text-gray-700 font-medium mb-2">Restaurador:</label>
-                  <input
-                    type="text"
-                    placeholder="Restaurador"
+                  <select
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A859] focus:border-transparent"
-                    value={formData.restaurador || ''}
-                    onChange={(e) => updateFormData('restaurador', e.target.value)}
-                  />
+                    value={formData.restaurador_id || ''}
+                    onChange={(e) => updateFormData('restaurador_id', e.target.value ? parseInt(e.target.value) : null)}
+                  >
+                    <option value="">Seleccione un restaurador</option>
+                    {restauradores.map((rest) => (
+                      <option key={rest.id} value={rest.id}>
+                        {rest.nombre}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -430,9 +531,11 @@ export default function NuevoReporte() {
                     onChange={(e) => updateFormData('circuito', e.target.value)}
                   >
                     <option value="">Seleccione una opción</option>
-                    <option value="Circuito A">Circuito A</option>
-                    <option value="Circuito B">Circuito B</option>
-                    <option value="Circuito C">Circuito C</option>
+                    {formOptions.circuito?.map((opcion) => (
+                      <option key={opcion.id} value={opcion.valor}>
+                        {opcion.valor}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -444,10 +547,11 @@ export default function NuevoReporte() {
                     onChange={(e) => updateFormData('area', e.target.value)}
                   >
                     <option value="">Seleccione una opción</option>
-                    <option value="Norte">Norte</option>
-                    <option value="Sur">Sur</option>
-                    <option value="Este">Este</option>
-                    <option value="Oeste">Oeste</option>
+                    {formOptions.area?.map((opcion) => (
+                      <option key={opcion.id} value={opcion.valor}>
+                        {opcion.valor}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -603,9 +707,11 @@ export default function NuevoReporte() {
                     onChange={(e) => updateFormData('frecuenciaMhz', e.target.value)}
                   >
                     <option value="">Seleccione una opción</option>
-                    <option value="433">433 MHz</option>
-                    <option value="868">868 MHz</option>
-                    <option value="915">915 MHz</option>
+                    {formOptions.frecuencia_mhz?.map((opcion) => (
+                      <option key={opcion.id} value={opcion.valor}>
+                        {opcion.valor}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -617,8 +723,11 @@ export default function NuevoReporte() {
                     onChange={(e) => updateFormData('rx', e.target.value)}
                   >
                     <option value="">Seleccione una opción</option>
-                    <option value="RX1">RX1</option>
-                    <option value="RX2">RX2</option>
+                    {formOptions.rx?.map((opcion) => (
+                      <option key={opcion.id} value={opcion.valor}>
+                        {opcion.valor}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -630,8 +739,11 @@ export default function NuevoReporte() {
                     onChange={(e) => updateFormData('tx', e.target.value)}
                   >
                     <option value="">Seleccione una opción</option>
-                    <option value="TX1">TX1</option>
-                    <option value="TX2">TX2</option>
+                    {formOptions.tx?.map((opcion) => (
+                      <option key={opcion.id} value={opcion.valor}>
+                        {opcion.valor}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -643,9 +755,11 @@ export default function NuevoReporte() {
                     onChange={(e) => updateFormData('cablePigtail', e.target.value)}
                   >
                     <option value="">Seleccione una opción</option>
-                    <option value="N-Macho">N-Macho</option>
-                    <option value="N-Hembra">N-Hembra</option>
-                    <option value="SMA">SMA</option>
+                    {formOptions.cable_pigtail?.map((opcion) => (
+                      <option key={opcion.id} value={opcion.valor}>
+                        {opcion.valor}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -657,8 +771,11 @@ export default function NuevoReporte() {
                     onChange={(e) => updateFormData('supresor', e.target.value)}
                   >
                     <option value="">Seleccione una opción</option>
-                    <option value="Si">Sí</option>
-                    <option value="No">No</option>
+                    {formOptions.supresor?.map((opcion) => (
+                      <option key={opcion.id} value={opcion.valor}>
+                        {opcion.valor}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -670,8 +787,27 @@ export default function NuevoReporte() {
                     onChange={(e) => updateFormData('cableLT', e.target.value)}
                   >
                     <option value="">Seleccione una opción</option>
-                    <option value="LMR-400">LMR-400</option>
-                    <option value="LMR-600">LMR-600</option>
+                    {formOptions.cable_lt?.map((opcion) => (
+                      <option key={opcion.id} value={opcion.valor}>
+                        {opcion.valor}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2">Antena:</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A859] focus:border-transparent"
+                    value={formData.antena || ''}
+                    onChange={(e) => updateFormData('antena', e.target.value)}
+                  >
+                    <option value="">Seleccione una antena</option>
+                    {formOptions.antena?.map((opcion) => (
+                      <option key={opcion.id} value={opcion.valor}>
+                        {opcion.valor}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -694,8 +830,11 @@ export default function NuevoReporte() {
                     onChange={(e) => updateFormData('repetidorEnlace', e.target.value)}
                   >
                     <option value="">Seleccione una opción</option>
-                    <option value="Si">Sí</option>
-                    <option value="No">No</option>
+                    {formOptions.repetidor_enlace?.map((opcion) => (
+                      <option key={opcion.id} value={opcion.valor}>
+                        {opcion.valor}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -707,8 +846,11 @@ export default function NuevoReporte() {
                     onChange={(e) => updateFormData('canalUCM', e.target.value)}
                   >
                     <option value="">Seleccione una opción</option>
-                    <option value="Canal 1">Canal 1</option>
-                    <option value="Canal 2">Canal 2</option>
+                    {formOptions.canal_ucm?.map((opcion) => (
+                      <option key={opcion.id} value={opcion.valor}>
+                        {opcion.valor}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -791,10 +933,11 @@ export default function NuevoReporte() {
                 <div>
                   <label className="block text-gray-700 font-medium mb-2">VSWR:</label>
                   <input
-                    type="number"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A859] focus:border-transparent"
+                    type="text"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                     value={formData.vswr || ''}
-                    onChange={(e) => updateFormData('vswr', e.target.value)}
+                    readOnly
+                    placeholder="Se calcula automáticamente"
                   />
                 </div>
 

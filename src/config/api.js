@@ -2,11 +2,11 @@
 const protocol = window.location.protocol; // 'http:' o 'https:'
 const hostname = window.location.hostname;
 
-// Con Nginx como proxy, no necesitamos especificar puerto
+nfiguración para producción con puerto 3000
 const API_URL = import.meta.env.VITE_API_URL || 
   (hostname === 'localhost' || hostname === '127.0.0.1'
     ? 'http://localhost:3000/api'
-    : `${protocol}//${hostname}/api`); // Nginx maneja el proxy
+    : `${protocol}//${hostname}:3000/api`); // Usa el puerto 3000
 
 export const apiClient = {
   async request(endpoint, options = {}) {
