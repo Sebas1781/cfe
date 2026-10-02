@@ -59,51 +59,8 @@ router.post('/login', [
   }
 });
 
-// Register (solo para desarrollo)
-router.post('/register', [
-  body('email').isEmail().normalizeEmail(),
-  body('password').isLength({ min: 6 }),
-  body('name').notEmpty().trim(),
-  body('role').isIn(['admin', 'trabajador'])
-], async (req, res) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { email, password, name, role } = req.body;
-    
-    // Verificar si el usuario ya existe
-    const existingUser = await get('SELECT * FROM users WHERE email = ?', [email]);
-    
-    if (existingUser) {
-      return res.status(400).json({ error: 'El usuario ya existe' });
-    }
-    
-    // Hash de la contraseña
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Insertar usuario
-    const result = await run(
-      'INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)',
-      [email, hashedPassword, name, role]
-    );
-    
-    res.status(201).json({
-      message: 'Usuario creado exitosamente',
-      user: {
-        id: result.lastInsertRowid,
-        email,
-        name,
-        role
-      }
-    });
-  } catch (error) {
-    console.error('Error en registro:', error);
-    res.status(500).json({ error: 'Error en el servidor' });
-  }
-});
+// Registro público deshabilitado: los usuarios los crea un admin en /api/users
+router.post('/register', (req, res) => res.status(404).json({ error: 'Not found' }));
 
 // Verificar token
 router.get('/verify', (req, res) => {
