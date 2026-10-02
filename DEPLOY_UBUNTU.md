@@ -76,4 +76,23 @@ Rollback: `git log --oneline`, `git checkout <commit>`, `FORCE=1 ./deploy/deploy
 
 ## D) Notas
 - Los usuarios con la PWA instalada reciben la actualización al abrir la app dos veces (autoUpdate del service worker).
-- Cámara/QR y PWA instalable requieren HTTPS (o localhost). Para eso, pon un dominio y usa `sudo certbot --nginx`.
+- Al ser intranet se entra por IP (`http://IP_DEL_SERVIDOR`); no hace falta dominio. `server_name _` ya acepta cualquier IP.
+- **Cámara/QR y "instalar app" (PWA) exigen HTTPS**, y Let's Encrypt no sirve con IP privada. Opción: certificado autofirmado en nginx (sección E).
+
+## E) HTTPS con certificado autofirmado (para cámara/QR y PWA)
+```bash
+IP=10.9.179.124   # IP del servidor
+sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048   -keyout /etc/ssl/private/cfe.key -out /etc/ssl/certs/cfe.crt   -subj "/CN=$IP" -addext "subjectAltName=IP:$IP"
+```
+En `/etc/nginx/sites-available/cfe` cambia `listen 80;` por:
+```nginx
+listen 443 ssl;
+ssl_certificate     /etc/ssl/certs/cfe.crt;
+ssl_certificate_key /etc/ssl/private/cfe.key;
+```
+y agrega un bloque `server { listen 80; return 301 https://$host$request_uri; }`.
+Luego `sudo ufw allow 443 && sudo nginx -t && sudo systemctl reload nginx`.
+
+Cada celular/PC debe confiar en el certificado una vez: descarga `cfe.crt` e instálalo como certificado de CA/confianza
+(en Android: Ajustes → Seguridad → Instalar certificado). Sin eso el navegador mostrará advertencia y la PWA no se instalará.
+Pon además `VITE_API_URL=/api` para que la API use el mismo https (si no, habría contenido mixto bloqueado) y vuelve a correr `./deploy/deploy.sh` con `FORCE=1`.
