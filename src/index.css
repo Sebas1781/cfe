@@ -24,3 +24,27 @@ input[type="range"]::-webkit-slider-thumb {
 input[type="range"]::-moz-range-thumb {
   background-color: #00A859;
 }
+
+/* Animaciones del visor de fotografías */
+@keyframes lightbox-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lightbox-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes lightbox-zoom-in {
+  from { opacity: 0; transform: scale(0.85) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes lightbox-zoom-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.85); }
+}
+@keyframes thumb-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.lightbox-backdrop { animation: lightbox-fade-in 0.25s ease-out both; }
+.lightbox-backdrop.closing { animation: lightbox-fade-out 0.2s ease-in both; }
+.lightbox-img { animation: lightbox-zoom-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.closing .lightbox-img { animation: lightbox-zoom-out 0.2s ease-in both; }
+.thumb-in { animation: thumb-in 0.4s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .lightbox-backdrop, .lightbox-img, .thumb-in { animation: none !important; }
+}

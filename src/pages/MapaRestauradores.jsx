@@ -8,7 +8,7 @@ import QRCode from 'qrcode';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faHome, faUser, faClipboardList, faDoorOpen, 
-  faPlus, faQrcode, faMapMarkerAlt, faClipboard, faDownload 
+  faPlus, faQrcode, faMapMarkerAlt, faClipboard, faDownload, faEye 
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function MapaRestauradores() {
@@ -312,7 +312,7 @@ export default function MapaRestauradores() {
                         <div
                           key={reporte.id}
                           className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                          onClick={() => navigate(`/reportes/${reporte.id}`)}
+                          onClick={() => navigate(`/ver-reporte/${reporte.id}`)}
                         >
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
@@ -323,6 +323,18 @@ export default function MapaRestauradores() {
                                 {new Date(reporte.fecha_mantenimiento).toLocaleDateString('es-MX')}
                               </p>
                             </div>
+                            <div className="flex gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/ver-reporte/${reporte.id}`);
+                              }}
+                              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-semibold flex items-center gap-2"
+                              title="Visualizar reporte"
+                            >
+                              <FontAwesomeIcon icon={faEye} />
+                              Visualizar
+                            </button>
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation();
@@ -339,6 +351,7 @@ export default function MapaRestauradores() {
                               <FontAwesomeIcon icon={faDownload} />
                               PDF
                             </button>
+                            </div>
                           </div>
                         </div>
                       ))}

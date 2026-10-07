@@ -8,6 +8,7 @@ import FormularioTrabajador from './pages/FormularioTrabajador';
 import AdminDashboard from './pages/AdminDashboard';
 import NuevoReporte from './pages/NuevoReporte';
 import EditarReporte from './pages/EditarReporte';
+import VerReporte from './pages/VerReporte';
 import ListaReportes from './pages/ListaReportes';
 import AdminUsuarios from './pages/AdminUsuarios';
 import AdminFormularios from './pages/AdminFormularios';
@@ -44,6 +45,16 @@ function App() {
           element={
             <PrivateRoute>
               <NuevoReporte />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Ver reporte - admin y trabajador */}
+        <Route
+          path="/ver-reporte/:id"
+          element={
+            <PrivateRoute>
+              <VerReporte />
             </PrivateRoute>
           }
         />
