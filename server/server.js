@@ -11,9 +11,11 @@ const fs = require('fs');
 const createDirectories = () => {
   const dirs = [
     './database',
-    './reports/generated',
     './reports/templates',
-    './reports/temp'
+    './reports/subidas',
+    './reports/fotos',
+    './reports/pdf',
+    './reports/excel'
   ];
   
   dirs.forEach(dir => {
@@ -54,7 +56,9 @@ app.use('/reports', (req, res, next) => {
 });
 
 // Servir archivos estáticos (PDFs e imágenes)
-app.use('/reports/generated', express.static(path.join(__dirname, 'reports/generated')));
+app.use('/reports/fotos', express.static(path.join(__dirname, 'reports/fotos')));
+app.use('/reports/subidas', express.static(path.join(__dirname, 'reports/subidas')));
+// Ruta anterior de subidas: formularios offline que aún tengan fotos en reports/temp
 app.use('/reports/temp', express.static(path.join(__dirname, 'reports/temp')));
 
 // Routes

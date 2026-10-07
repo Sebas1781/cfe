@@ -5,6 +5,10 @@ node_modules/
 *.db-wal
 reports/generated/*.pdf
 reports/temp/*
+reports/subidas/
+reports/fotos/
+reports/pdf/
+reports/excel/
 .DS_Store
 *.log
 npm-debug.log*

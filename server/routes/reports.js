@@ -5,6 +5,7 @@ const { authMiddleware, requireRole } = require('../middleware/auth');
 const { run, get, all } = require('../database/db');
 const { generatePDF } = require('../services/pdfGenerator');
 const { generateXLSX } = require('../services/excelGenerator');
+const { organizarFotos, eliminarArchivosReporte } = require('../services/reportFiles');
 const path = require('path');
 const fs = require('fs');
 
@@ -98,6 +99,9 @@ router.post('/generate', [
     if (existingReport) {
       return res.status(400).json({ error: 'El folio ya existe' });
     }
+
+    // Mover las fotos subidas a reports/fotos/<folio>/
+    formData.fotografias = organizarFotos(folio, formData.fotografias);
     
     // Insertar reporte en la base de datos con TODOS los campos
     const result = await run(
@@ -285,6 +289,9 @@ router.put('/:id', authMiddleware, async (req, res) => {
     if (req.user.role === 'trabajador' && existingReport.user_id !== req.user.id) {
       return res.status(403).json({ error: 'No tienes permisos' });
     }
+
+    // Mover las fotos nuevas a reports/fotos/<folio>/
+    formData.fotografias = organizarFotos(existingReport.folio, formData.fotografias);
     
     // Actualizar todos los campos
     await run(
@@ -378,15 +385,14 @@ router.delete('/:id', [authMiddleware, requireRole('admin')], async (req, res) =
       return res.status(404).json({ error: 'Reporte no encontrado' });
     }
     
-    // Eliminar PDF si existe
-    if (reporte.pdf_path) {
-      const pdfPath = path.join(__dirname, '..', reporte.pdf_path);
-      if (fs.existsSync(pdfPath)) {
-        fs.unlinkSync(pdfPath);
-      }
-    }
-    
     await run('DELETE FROM reports WHERE id = ?', [id]);
+
+    // Eliminar fotos, PDF y Excel del reporte
+    try {
+      eliminarArchivosReporte(reporte.folio, reporte.pdf_path);
+    } catch (fileError) {
+      console.error('Error al eliminar archivos del reporte:', fileError);
+    }
     
     res.json({ message: 'Reporte eliminado' });
   } catch (error) {

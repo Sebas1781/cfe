@@ -1,6 +1,7 @@
 const ExcelJS = require('exceljs');
 const path = require('path');
 const fs = require('fs');
+const { EXCEL_DIR, asegurarDir, rutaExcel, rutaRelativa } = require('./reportFiles');
 
 /**
  * Generates an Excel (.xlsx) file for a report using key fields.
@@ -10,13 +11,10 @@ const fs = require('fs');
  */
 async function generateXLSX(data) {
   // Ensure output directory exists
-  const reportsDir = path.join(__dirname, '..', 'reports', 'generated');
-  if (!fs.existsSync(reportsDir)) {
-    fs.mkdirSync(reportsDir, { recursive: true });
-  }
-
-  const fileName = `reporte_${data.folio}_${Date.now()}.xlsx`;
-  const filePath = path.join(reportsDir, fileName);
+  // Un Excel por reporte: reports/excel/<folio>.xlsx (se reemplaza al exportar)
+  asegurarDir(EXCEL_DIR);
+  const filePath = rutaExcel(data.folio);
+  const fileName = path.basename(filePath);
 
   const wb = new ExcelJS.Workbook();
   const ws = wb.addWorksheet('Reporte CFE');
@@ -123,7 +121,7 @@ async function generateXLSX(data) {
 
   await wb.xlsx.writeFile(filePath);
   console.log(`✅ XLSX generado: ${fileName}`);
-  return `reports/generated/${fileName}`;
+  return rutaRelativa(filePath);
 }
 
 function safeParseArray(v) {

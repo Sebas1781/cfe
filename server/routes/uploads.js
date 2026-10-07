@@ -4,13 +4,13 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { authMiddleware } = require('../middleware/auth');
+const { SUBIDAS_DIR, asegurarDir, rutaRelativa } = require('../services/reportFiles');
 
-// Storage to reports/temp preserving original filename with timestamp
+// Las fotos llegan a reports/subidas; al guardar el reporte se mueven a reports/fotos/<folio>
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dest = path.join(__dirname, '..', 'reports', 'temp');
-    if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
-    cb(null, dest);
+    asegurarDir(SUBIDAS_DIR);
+    cb(null, SUBIDAS_DIR);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -31,7 +31,7 @@ router.post('/images', [authMiddleware, upload.any()], async (req, res) => {
     const files = (req.files || []).map(f => ({
       field: f.fieldname,
       filename: f.filename,
-      path: `reports/temp/${f.filename}`,
+      path: rutaRelativa(f.path),
       size: f.size,
       mimetype: f.mimetype
     }));

@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
+const { PDF_DIR, asegurarDir, rutaPDF, rutaRelativa } = require('./reportFiles');
 
 const generatePDF = async (data) => {
   let browser;
@@ -12,15 +13,10 @@ const generatePDF = async (data) => {
       tipoFotografias: typeof data.fotografias
     });
     
-    // Crear directorio de reportes si no existe
-    const reportsDir = path.join(__dirname, '..', 'reports', 'generated');
-    if (!fs.existsSync(reportsDir)) {
-      fs.mkdirSync(reportsDir, { recursive: true });
-    }
-    
-    // Nombre del archivo PDF
-    const fileName = `reporte_${data.folio}_${Date.now()}.pdf`;
-    const filePath = path.join(reportsDir, fileName);
+    // Un PDF por reporte: reports/pdf/<folio>.pdf (se reemplaza al regenerar)
+    asegurarDir(PDF_DIR);
+    const filePath = rutaPDF(data.folio);
+    const fileName = path.basename(filePath);
 
     // Procesar fotograf�as
     const fotosHTML = (fieldName, label) => {
@@ -425,7 +421,7 @@ const generatePDF = async (data) => {
     console.log(`? PDF generado: ${fileName}`);
     
     // Retornar ruta relativa
-    return `reports/generated/${fileName}`;
+    return rutaRelativa(filePath);
     
   } catch (error) {
     if (browser) {
