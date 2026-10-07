@@ -16,7 +16,7 @@ sudo apt install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
 # 3. Código
 cd ~ && git clone https://github.com/Sebas1781/cfe.git && cd cfe
 
-# 4. Configuración del backend
+# 4. Configuración del backendd
 cp server/.env.example server/.env
 nano server/.env
 #   NODE_ENV=production
