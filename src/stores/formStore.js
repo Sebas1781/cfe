@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import localforage from 'localforage';
+import { API_URL } from '../config/api';
 
 // Configurar localforage para almacenamiento offline
 localforage.config({
@@ -45,12 +46,7 @@ const useFormStore = create(
         for (const form of pendingForms) {
           try {
             // Detectar la URL del servidor
-            const protocol = window.location.protocol;
-            const hostname = window.location.hostname;
-            const port = window.location.port || '3000';
-            const baseURL = hostname === 'localhost' || hostname === '127.0.0.1'
-              ? 'http://localhost:3000/api'
-              : `${protocol}//${hostname}:${port}/api`;
+            const baseURL = API_URL;
             
             const response = await fetch(`${baseURL}/reports/generate`, {
               method: 'POST',

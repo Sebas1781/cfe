@@ -1,16 +1,11 @@
-import apiClient from '../config/api';
+import apiClient, { API_URL } from '../config/api';
 
 export const reportService = {
   // Subir imágenes múltiples sin límite
   async uploadImages(formData) {
     try {
       const token = localStorage.getItem('authToken');
-      const protocol = window.location.protocol;
-      const hostname = window.location.hostname;
-      const port = window.location.port || '3000';
-      const baseURL = hostname === 'localhost' || hostname === '127.0.0.1'
-        ? 'http://localhost:3000/api'
-        : `${protocol}//${hostname}:${port}/api`;
+      const baseURL = API_URL;
       const response = await fetch(
         `${baseURL}/uploads/images`,
         {
@@ -51,12 +46,7 @@ export const reportService = {
   async downloadReport(reportId) {
     try {
       const token = localStorage.getItem('authToken');
-      const protocol = window.location.protocol;
-      const hostname = window.location.hostname;
-      const port = window.location.port || '3000';
-      const baseURL = hostname === 'localhost' || hostname === '127.0.0.1'
-        ? 'http://localhost:3000/api'
-        : `${protocol}//${hostname}:${port}/api`;
+      const baseURL = API_URL;
       const response = await fetch(
         `${baseURL}/reports/${reportId}/download`,
         {
@@ -84,12 +74,7 @@ export const reportService = {
   async downloadXlsx(reportId) {
     try {
       const token = localStorage.getItem('authToken');
-      const protocol = window.location.protocol;
-      const hostname = window.location.hostname;
-      const port = window.location.port || '3000';
-      const baseURL = hostname === 'localhost' || hostname === '127.0.0.1'
-        ? 'http://localhost:3000/api'
-        : `${protocol}//${hostname}:${port}/api`;
+      const baseURL = API_URL;
       const response = await fetch(
         `${baseURL}/reports/${reportId}/export/xlsx`,
         {

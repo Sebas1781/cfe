@@ -4,7 +4,7 @@ import useAuthStore from '../stores/authStore';
 import useFormStore from '../stores/formStore';
 import { GoogleMap, Marker } from '@react-google-maps/api';
 import { reportService } from '../services/reportService';
-import { apiClient } from '../config/api';
+import { apiClient, API_URL } from '../config/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faUser, faClipboardList, faDoorOpen } from '@fortawesome/free-solid-svg-icons';
 
@@ -276,12 +276,7 @@ export default function NuevoReporte() {
       }
 
       // Si hay conexión, enviar al servidor
-      const protocol = window.location.protocol;
-      const hostname = window.location.hostname;
-      const port = window.location.port || '3000';
-      const baseURL = hostname === 'localhost' || hostname === '127.0.0.1'
-        ? 'http://localhost:3000/api'
-        : `${protocol}//${hostname}:${port}/api`;
+      const baseURL = API_URL;
       
       console.log('📤 Enviando formData:', formData);
       console.log('📍 restaurador_id:', formData.restaurador_id, typeof formData.restaurador_id);

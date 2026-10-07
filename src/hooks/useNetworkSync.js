@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import useFormStore from '../stores/formStore';
-import { apiClient } from '../config/api';
+import { apiClient, API_URL } from '../config/api';
 
 /**
  * Hook personalizado para sincronización automática
@@ -19,12 +19,7 @@ const useNetworkSync = () => {
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
       // Usar protocolo actual en producción
-      const protocol = window.location.protocol;
-      const hostname = window.location.hostname;
-      const port = window.location.port || '3000';
-      const apiUrl = hostname === 'localhost' || hostname === '127.0.0.1'
-        ? 'http://localhost:3000/api'
-        : `${protocol}//${hostname}:${port}/api`;
+      const apiUrl = API_URL;
 
       const response = await fetch(`${apiUrl}/health`, {
         signal: controller.signal,

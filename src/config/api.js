@@ -59,4 +59,7 @@ export const apiClient = {
 };
 
 export default apiClient;
-export { API_URL };
+// Raíz del servidor (sin /api), para rutas de archivos como /reports/temp/...
+const SERVER_URL = API_URL.replace(/\/api\/?$/, '');
+
+export { API_URL, SERVER_URL };

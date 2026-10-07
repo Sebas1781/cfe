@@ -5,6 +5,7 @@ import { faHome, faUser, faClipboardList, faDoorOpen } from '@fortawesome/free-s
 import useAuthStore from '../stores/authStore';
 import { GoogleMap, Marker } from '@react-google-maps/api';
 import { reportService } from '../services/reportService';
+import { SERVER_URL } from '../config/api';
 
 export default function EditarReporte() {
   const { id } = useParams();
@@ -107,12 +108,7 @@ export default function EditarReporte() {
       if (fotografias && Object.keys(fotografias).length > 0) {
         console.log('📸 Fotografías encontradas en BD:', fotografias);
         const imagesState = {};
-        const protocol = window.location.protocol;
-        const hostname = window.location.hostname;
-        const port = window.location.port || '3000';
-        const baseURL = hostname === 'localhost' || hostname === '127.0.0.1'
-          ? 'http://localhost:3000'
-          : `${protocol}//${hostname}:${port}`;
+        const baseURL = SERVER_URL;
         
         Object.keys(fotografias).forEach(fieldName => {
           if (Array.isArray(fotografias[fieldName]) && fotografias[fieldName].length > 0) {
